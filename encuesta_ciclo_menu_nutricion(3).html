@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plataforma de Encuestas - Nutrición</title>
+<style>
+  :root{
+    --bg:#f6fbf7; --card:#fff; --text:#173b2b; --muted:#708277;
+    --primary:#2f9e63; --primary-dark:#22794b; --accent:#f3b53f;
+    --soft:#e8f5ed; --danger:#d65b5b; --warn:#d7962f; --blue:#3c78a8;
+    --shadow:0 18px 45px rgba(32,83,57,.12); --border:#dfeae3;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 12% 15%,rgba(74,190,122,.15),transparent 23%),radial-gradient(circle at 88% 10%,rgba(243,181,63,.14),transparent 22%),linear-gradient(180deg,#fbfefb 0%,var(--bg) 100%);color:var(--text);min-height:100vh}
+  button,input,select,textarea{font:inherit}
+  .app{max-width:1180px;margin:auto;padding:24px 18px 60px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:24px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:800}
+  .brand-mark{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,var(--primary),#62c98a);display:grid;place-items:center;color:#fff;font-size:23px;box-shadow:var(--shadow)}
+  .brand small{display:block;color:var(--muted);font-weight:600;font-size:12px;margin-top:2px}
+  .top-actions{display:flex;gap:9px;align-items:center}
+  .badge{background:#fff;border:1px solid var(--border);border-radius:999px;padding:9px 13px;color:var(--muted);font-size:13px;box-shadow:0 8px 20px rgba(32,83,57,.06)}
+  .admin-link{border:1px solid var(--border);background:#fff;border-radius:999px;padding:9px 13px;color:var(--primary-dark);font-size:13px;font-weight:800;cursor:pointer}
+  .card{background:rgba(255,255,255,.97);border:1px solid rgba(214,231,220,.9);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}
+  .hero{padding:46px 42px;text-align:center}
+  .hero-emoji{width:92px;height:92px;margin:0 auto 20px;border-radius:28px;background:linear-gradient(135deg,#e8f7ee,#fff2d4);display:grid;place-items:center;font-size:46px;transform:rotate(-3deg)}
+  h1{font-size:clamp(30px,5vw,48px);line-height:1.05;margin:0 0 16px}
+  h2{margin:0}
+  .lead{max-width:760px;margin:0 auto 26px;color:var(--muted);font-size:17px;line-height:1.6}
+  .notice{max-width:760px;margin:18px auto;background:var(--soft);padding:14px 16px;border-radius:16px;color:#436b55;font-size:14px;line-height:1.55}
+  .btn{border:0;border-radius:16px;padding:14px 20px;font-weight:800;font-size:14px;cursor:pointer;transition:.2s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+  .btn-primary{background:linear-gradient(135deg,var(--primary),#45b979);color:#fff;box-shadow:0 12px 25px rgba(47,158,99,.22)}
+  .btn-primary:hover{transform:translateY(-2px)}
+  .btn-secondary{background:#eef6f1;color:var(--primary-dark)}
+  .btn-danger{background:#fff1f1;color:#a74343}
+  .btn-ghost{background:#fff;border:1px solid var(--border);color:var(--text)}
+  .btn-dark{background:#173b2b;color:#fff}
+  .home,.quiz,.finish,.dashboard{display:none}
+
+  .survey-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:26px}
+  .survey-card{padding:24px;border:1px solid var(--border);border-radius:24px;background:#fff;text-align:left;display:flex;flex-direction:column;gap:14px;cursor:pointer;transition:.18s ease;position:relative}
+  .survey-card:hover{transform:translateY(-3px);box-shadow:0 16px 30px rgba(32,83,57,.09);border-color:#b8d8c4}
+  .survey-head{display:flex;justify-content:space-between;gap:12px;align-items:start}
+  .survey-icon{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#e8f7ee,#fff4dd);display:grid;place-items:center;font-size:28px}
+  .survey-tag{font-size:11px;font-weight:800;border-radius:999px;padding:7px 10px;background:#f2f8f4;color:var(--primary-dark);text-transform:uppercase;letter-spacing:.05em}
+  .survey-card h3{font-size:23px;margin:0}
+  .survey-card p{margin:0;color:var(--muted);line-height:1.55;font-size:14px}
+  .survey-meta{display:flex;flex-wrap:wrap;gap:8px}
+  .meta-chip{font-size:12px;background:#f8fbf9;border:1px solid #e7efe9;color:#4b6356;border-radius:999px;padding:7px 10px}
+
+  .progress-wrap{padding:24px 28px 0}
+  .progress-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-bottom:10px}
+  .progress{height:11px;background:#edf2ee;border-radius:999px;overflow:hidden}
+  .progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--primary),#6cc890);transition:width .35s ease}
+  .question-card{padding:34px 32px 30px}
+  .question-top{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:10px}
+  .question-survey{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .category{display:inline-block;background:#f0f8f3;color:var(--primary-dark);font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:7px 10px;margin-bottom:14px}
+  .q-title{font-size:clamp(23px,4vw,34px);line-height:1.22;margin:0 0 10px}
+  .q-help{color:var(--muted);margin:0 0 24px;line-height:1.5}
+  .options{display:grid;gap:12px}
+  .option{width:100%;border:1.5px solid #e0ebe4;background:#fff;border-radius:18px;padding:16px 17px;text-align:left;display:flex;gap:13px;align-items:center;cursor:pointer;font-size:15px;font-weight:700;color:#264b38;transition:.18s ease}
+  .option:hover{border-color:#91c8a9;transform:translateY(-1px);box-shadow:0 8px 16px rgba(32,83,57,.06)}
+  .option.selected{border-color:var(--primary);background:#ecf8f1;box-shadow:0 0 0 3px rgba(47,158,99,.08)}
+  .option .icon{width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:#f4f8f5;display:grid;place-items:center;font-size:19px}
+  .option .subtext{font-size:12px;color:var(--muted);font-weight:600}
+  textarea,input[type=text],input[type=password],input[type=date],select{width:100%;border:1.5px solid #dfe9e2;border-radius:14px;padding:12px 14px;color:var(--text);outline:none;background:#fff}
+  textarea:focus,input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(47,158,99,.08)}
+  textarea{min-height:135px;resize:vertical}
+  .inline-help{font-size:12px;color:var(--muted);margin-top:8px}
+  .nav{display:flex;justify-content:space-between;gap:12px;margin-top:26px}
+  .nav .btn{min-width:125px}
+
+  .finish{padding:44px 34px;text-align:center}
+  .score-ring{width:132px;height:132px;border-radius:50%;margin:0 auto 22px;background:conic-gradient(var(--primary) 0deg,#e8efe9 0deg);display:grid;place-items:center;position:relative}
+  .score-ring:after{content:"";position:absolute;width:98px;height:98px;background:#fff;border-radius:50%}
+  .score-ring strong{position:relative;z-index:2;font-size:28px}
+  .summary{max-width:760px;margin:24px auto;text-align:left;background:#f8fbf9;border:1px solid #e2eee6;border-radius:20px;padding:20px}
+  .summary h3{margin-top:0}
+  .summary-row{display:flex;justify-content:space-between;gap:20px;padding:9px 0;border-bottom:1px dashed #dfe9e2;font-size:14px}
+  .summary-row:last-child{border-bottom:0}
+  .footer{margin-top:18px;text-align:center;color:#95a49a;font-size:12px}
+
+  .dashboard{background:transparent}
+  .dash-shell{display:grid;gap:18px}
+  .dash-head{background:linear-gradient(135deg,#163d2b,#246a47);color:#fff;border-radius:28px;padding:28px;display:flex;justify-content:space-between;gap:22px;align-items:flex-start;box-shadow:var(--shadow)}
+  .dash-head h1{font-size:34px;margin:0 0 7px}
+  .dash-head p{margin:0;color:#d4e9dc}
+  .dash-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .dash-actions .btn{padding:10px 13px;border-radius:12px}
+  .dash-actions .btn-ghost{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.22)}
+  .warning-box{background:#fff8ea;border:1px solid #f4dfad;color:#725622;border-radius:14px;padding:11px 13px;font-size:12px;line-height:1.45}
+  .filters{background:#fff;border:1px solid var(--border);border-radius:20px;padding:15px;display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr auto;gap:10px;align-items:end}
+  .field label{display:block;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .metric{background:#fff;border:1px solid var(--border);border-radius:20px;padding:20px;box-shadow:0 10px 24px rgba(32,83,57,.06)}
+  .metric-top{display:flex;justify-content:space-between;gap:12px;align-items:center}
+  .metric-icon{width:42px;height:42px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-size:20px}
+  .metric .value{font-size:32px;font-weight:900;margin:12px 0 3px}
+  .metric .label{font-size:12px;color:var(--muted);font-weight:700}
+  .metric .trend{font-size:11px;color:var(--primary-dark);margin-top:8px;line-height:1.35}
+  .dash-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+  .panel{background:#fff;border:1px solid var(--border);border-radius:22px;padding:20px;box-shadow:0 10px 26px rgba(32,83,57,.06)}
+  .panel h3{margin:0;font-size:18px}
+  .panel-sub{color:var(--muted);font-size:12px;margin:5px 0 18px;line-height:1.5}
+  .panel-head{display:flex;justify-content:space-between;gap:12px;align-items:start;margin-bottom:12px}
+  .pill{font-size:11px;font-weight:800;border-radius:999px;padding:6px 9px;background:#f2f8f4;color:var(--primary-dark)}
+  .bar-list{display:grid;gap:14px}
+  .bar-row{display:grid;grid-template-columns:minmax(110px,210px) 1fr 62px;gap:10px;align-items:center}
+  .bar-label{font-size:12px;font-weight:800}
+  .bar-track{height:11px;border-radius:999px;background:#edf2ee;overflow:hidden}
+  .bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),#71c792)}
+  .bar-value{font-size:12px;font-weight:900;text-align:right}
+  .donut-wrap{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+  .donut{width:150px;height:150px;border-radius:50%;background:conic-gradient(var(--primary) 0deg,#edf2ee 0);position:relative;display:grid;place-items:center;flex:0 0 auto}
+  .donut:after{content:"";position:absolute;width:108px;height:108px;background:#fff;border-radius:50%}
+  .donut-center{position:relative;z-index:2;text-align:center}
+  .donut-center strong{display:block;font-size:25px}
+  .donut-center span{font-size:10px;color:var(--muted);font-weight:700}
+  .legend{display:grid;gap:8px;flex:1;min-width:180px}
+  .legend-row{display:flex;justify-content:space-between;gap:12px;font-size:12px;border-bottom:1px dashed #edf1ee;padding-bottom:7px}
+  .legend-row:last-child{border:0}.legend-row span:last-child{font-weight:900}
+  .distribution{display:grid;gap:10px}
+  .dist-row{display:grid;grid-template-columns:1fr 2fr 42px;gap:8px;align-items:center;font-size:12px}
+  .dist-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dist-track{height:9px;border-radius:999px;background:#eef2ef;overflow:hidden}
+  .dist-fill{height:100%;border-radius:999px;background:#86c6a1}
+  .dist-count{text-align:right;font-weight:900}
+  .insights{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .insight{border-radius:17px;padding:15px;border:1px solid var(--border);background:#fbfdfb}
+  .insight.good{background:#f1faf4}.insight.warn{background:#fff8ea}.insight.alert{background:#fff2f2}.insight h4{margin:0 0 7px;font-size:13px}.insight p{margin:0;font-size:12px;line-height:1.5;color:#56685e}
+  .comment-list{display:grid;gap:10px;max-height:360px;overflow:auto;padding-right:3px}
+  .comment{background:#f8fbf9;border:1px solid #e6efe9;border-radius:14px;padding:12px}
+  .comment p{margin:0 0 6px;font-size:13px;line-height:1.45}.comment small{color:var(--muted)}
+  .report{background:linear-gradient(180deg,#fff,#f8fbf9)}
+  .report-box{background:#f7fbf8;border:1px solid #e1ece5;border-radius:16px;padding:16px;font-size:13px;line-height:1.65}
+  .report-box h4{margin:14px 0 6px}.report-box h4:first-child{margin-top:0}.report-box ul{margin:7px 0 0 18px;padding:0}
+  .table-wrap{overflow:auto}
+  .data-table{width:100%;border-collapse:collapse;min-width:760px}
+  .data-table th,.data-table td{text-align:left;border-bottom:1px solid #edf1ee;padding:10px 9px;font-size:11px;vertical-align:top}
+  .data-table th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+  .data-table td strong{font-size:12px}
+  .empty{padding:30px;text-align:center;color:var(--muted);border:1px dashed #d9e7de;border-radius:15px;background:#fbfdfb}
+
+  .modal{position:fixed;inset:0;background:rgba(18,44,32,.52);display:none;place-items:center;padding:18px;z-index:50;backdrop-filter:blur(5px)}
+  .modal.open{display:grid}
+  .modal-card{background:#fff;border-radius:24px;max-width:420px;width:100%;padding:26px;box-shadow:0 28px 70px rgba(0,0,0,.24)}
+  .modal-card h2{margin:0 0 8px}.modal-card p{color:var(--muted);font-size:13px;line-height:1.5}.modal-actions{display:flex;gap:9px;margin-top:15px}.modal-actions .btn{flex:1}.pin-note{font-size:11px;color:#8a958e;background:#f5f8f6;border-radius:10px;padding:9px;margin-top:10px}
+
+  @media(max-width:920px){
+    .survey-grid,.metrics{grid-template-columns:repeat(2,1fr)}
+    .dash-grid{grid-template-columns:1fr}
+    .filters{grid-template-columns:1fr 1fr}
+    .insights{grid-template-columns:1fr}
+    .dash-head{flex-direction:column}
+    .dash-actions{justify-content:flex-start}
+  }
+  @media(max-width:640px){
+    .hero{padding:34px 22px}.question-card{padding:28px 20px}.progress-wrap{padding:22px 20px 0}
+    .topbar{align-items:flex-start}.badge{display:none}.nav{flex-direction:column-reverse}.nav .btn{width:100%}
+    .metrics,.survey-grid{grid-template-columns:1fr}.metric{padding:15px}.metric .value{font-size:26px}
+    .filters{grid-template-columns:1fr}.bar-row{grid-template-columns:95px 1fr 56px}.dash-head h1{font-size:28px}
+    .app{padding:17px 12px 50px}.top-actions{flex-direction:column;align-items:flex-end}.question-top{flex-direction:column;align-items:flex-start}
+  }
+  @media print{
+    body{background:#fff}.topbar,.dash-actions,.filters,.footer,.admin-link{display:none!important}
+    .app{max-width:none;padding:0}.dashboard{display:block!important}.dash-head{box-shadow:none}.panel,.metric{box-shadow:none;break-inside:avoid}
+    .dash-grid{grid-template-columns:1fr 1fr}.comment-list{max-height:none;overflow:visible}.data-table{font-size:9px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><div class="brand-mark">🥗</div><div>Nutrición & Bienestar<small>Encuestas interactivas del ciclo de menú</small></div></div>
+    <div class="top-actions"><div class="badge">2 encuestas · panel nutricionista · 100% local</div><button class="admin-link" onclick="openAdminLogin()">📊 Panel nutricionista</button></div>
+  </div>
+
+  <section class="card home" id="home">
+    <div class="hero">
+      <div class="hero-emoji">🍽️</div>
+      <h1>Construyamos mejores menús juntos</h1>
+      <p class="lead">Esta página ahora incluye <strong>dos encuestas</strong>: una para evaluar la satisfacción con el ciclo de menú y otra de <strong>concertación dirigida a padres de familia</strong>, para recoger propuestas, alimentos y preparaciones que les gustaría incluir para sus hijos.</p>
+      <div class="notice">Selecciona la encuesta que deseas realizar. El panel privado de nutrición consolida porcentajes, gráficos, análisis, comentarios e informe automático por cada tipo de encuesta.</div>
+
+      <div class="survey-grid" id="surveyGrid"></div>
+    </div>
+  </section>
+
+  <section class="card quiz" id="quiz">
+    <div class="progress-wrap">
+      <div class="progress-meta"><span id="stepText">Pregunta 1 de 10</span><span id="progressText">10%</span></div>
+      <div class="progress"><div id="progressBar"></div></div>
+    </div>
+    <div class="question-card">
+      <div class="question-top"><div class="question-survey" id="questionSurvey">Encuesta</div><button class="btn btn-ghost" onclick="showHome()">← Volver al inicio</button></div>
+      <span class="category" id="category"></span>
+      <h2 class="q-title" id="question"></h2>
+      <p class="q-help" id="help"></p>
+      <div id="answerArea"></div>
+      <div class="nav"><button class="btn btn-secondary" id="backBtn" onclick="prevQuestion()">← Anterior</button><button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Siguiente →</button></div>
+    </div>
+  </section>
+
+  <section class="card finish" id="finish">
+    <div class="score-ring" id="scoreRing"><strong id="scoreText">100%</strong></div>
+    <h2 id="finishTitle">¡Gracias por participar! 🌱</h2>
+    <p class="lead" id="finishLead">Tu información fue registrada correctamente.</p>
+    <div class="summary" id="summaryBox"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="downloadCurrentCSV()">Descargar mi respuesta</button>
+      <button class="btn btn-secondary" onclick="restartQuiz()">Responder nuevamente</button>
+      <button class="btn btn-ghost" onclick="showHome()">Volver al inicio</button>
+    </div>
+  </section>
+
+  <section class="dashboard" id="dashboard">
+    <div class="dash-shell">
+      <header class="dash-head">
+        <div>
+          <div style="font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#aee2c2;margin-bottom:7px">Panel profesional</div>
+          <h1 id="dashTitle">Inteligencia del ciclo de menú</h1>
+          <p id="dashLead">Análisis consolidado de respuestas para la nutricionista.</p>
+        </div>
+        <div class="dash-actions">
+          <button class="btn btn-ghost" onclick="showHome()">← Inicio</button>
+          <button class="btn btn-ghost" onclick="exportAllCSV()">CSV</button>
+          <button class="btn btn-ghost" onclick="exportJSON()">Backup</button>
+          <button class="btn btn-ghost" onclick="loadDemoData()">Datos demo</button>
+          <button class="btn btn-ghost" onclick="window.print()">Informe PDF</button>
+        </div>
+      </header>
+
+      <div class="warning-box">🔒 <strong>Privacidad:</strong> este archivo guarda las respuestas en el navegador de este dispositivo. El PIN evita accesos casuales, pero no sustituye un sistema de autenticación de servidor. Para uso institucional multiusuario conviene conectarlo a una base de datos segura.</div>
+
+      <section class="filters">
+        <div class="field"><label>Encuesta</label><select id="filterSurvey" onchange="renderDashboard()"></select></div>
+        <div class="field" id="freqField"><label>Frecuencia de consumo</label><select id="filterFreq" onchange="renderDashboard()"><option value="all">Todas las frecuencias</option><option value="0">Todos o casi todos los días</option><option value="1">3–4 veces por semana</option><option value="2">1–2 veces por semana</option><option value="3">Ocasionalmente</option></select></div>
+        <div class="field"><label>Desde</label><input type="date" id="filterFrom" onchange="renderDashboard()"></div>
+        <div class="field"><label>Hasta</label><input type="date" id="filterTo" onchange="renderDashboard()"></div>
+        <button class="btn btn-secondary" onclick="clearFilters()">Limpiar filtros</button>
+      </section>
+
+      <section class="metrics" id="metrics"></section>
+
+      <section class="dash-grid">
+        <article class="panel">
+          <div class="panel-head"><div><h3 id="panel1Title">Resumen</h3><p class="panel-sub" id="panel1Sub"></p></div><span class="pill" id="panel1Pill">Indicadores</span></div>
+          <div id="panel1Content"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><h3 id="panel2Title">Distribución</h3><p class="panel-sub" id="panel2Sub"></p></div></div>
+          <div id="panel2Content"></div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><div><h3>Hallazgos automáticos</h3><p class="panel-sub">Fortalezas, alertas y oportunidades calculadas con las respuestas filtradas.</p></div><span class="pill" id="insightStatus">Sin datos</span></div>
+        <div class="insights" id="insights"></div>
+      </section>
+
+      <section class="dash-grid">
+        <article class="panel">
+          <div class="panel-head"><div><h3 id="panel3Title">Detalle</h3><p class="panel-sub" id="panel3Sub"></p></div></div>
+          <div id="panel3Content"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><h3 id="commentsTitle">Comentarios y sugerencias</h3><p class="panel-sub" id="commentsSub">Lectura cualitativa de respuestas abiertas.</p></div></div>
+          <div class="comment-list" id="comments"></div>
+        </article>
+      </section>
+
+      <section class="dash-grid">
+        <article class="panel report">
+          <div class="panel-head"><div><h3>Informe ejecutivo automático</h3><p class="panel-sub">Texto orientativo listo para compartir o adaptar.</p></div><button class="btn btn-secondary" onclick="copyReport()">Copiar informe</button></div>
+          <div class="report-box" id="autoReport"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><h3>Base de respuestas</h3><p class="panel-sub">Vista rápida de los registros filtrados.</p></div><button class="btn btn-danger" onclick="clearAllData()">Borrar todo</button></div>
+          <div class="table-wrap" id="responsesTable"></div>
+        </article>
+      </section>
+    </div>
+  </section>
+
+  <div class="footer" id="footer">Diseñado para encuestas nutricionales del ciclo de menú · Guarda la información en este navegador</div>
+</div>
+
+<div class="modal" id="adminModal">
+  <div class="modal-card">
+    <h2>Acceso al panel</h2>
+    <p>Ingresa el PIN para abrir el panel privado de la nutricionista.</p>
+    <input type="password" id="adminPin" placeholder="PIN de acceso" onkeydown="if(event.key==='Enter') loginAdmin()" />
+    <div class="pin-note">PIN actual: <strong>2026</strong>. Puedes cambiarlo después directamente en el archivo HTML si lo deseas.</div>
+    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeAdminLogin()">Cancelar</button><button class="btn btn-primary" onclick="loginAdmin()">Ingresar</button></div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY='encuestaMenuRespuestasV3';
+const LEGACY_STORAGE_KEY='encuestaMenuRespuestasV2';
+const ADMIN_PIN='2026';
+
+const surveys={
+  satisfaccion:{
+    id:'satisfaccion',
+    mode:'satisfaction',
+    title:'Encuesta de satisfacción del ciclo de menú',
+    shortTitle:'Satisfacción',
+    emoji:'😊',
+    tag:'Experiencia del usuario',
+    duration:'3–4 min',
+    description:'Evalúa sabor, temperatura, presentación, variedad, porciones, desperdicio y percepción general del servicio de alimentación.',
+    notice:'Responde pensando en tu experiencia durante el ciclo completo de menú, no solamente en la comida de hoy.',
+    chips:['Usuarios del servicio','Satisfacción','Mejora continua'],
+    questions:[
+      {id:'frecuencia',category:'Contexto',q:'¿Con qué frecuencia consumes los alimentos del servicio?',help:'Esta información ayuda a interpretar mejor tu percepción.',type:'single',options:['Todos o casi todos los días','3–4 veces por semana','1–2 veces por semana','Ocasionalmente']},
+      {id:'satisfaccion',category:'Satisfacción general',q:'En general, ¿qué tan satisfecho(a) estás con el ciclo de menú?',help:'Elige la opción que mejor describa tu percepción global.',type:'scale',options:['Muy insatisfecho(a)','Insatisfecho(a)','Neutral','Satisfecho(a)','Muy satisfecho(a)'],score:true,label:'Satisfacción general'},
+      {id:'sabor',category:'Calidad sensorial',q:'¿Cómo calificas el sabor de las preparaciones?',help:'Piensa en el gusto general de los alimentos durante el ciclo.',type:'scale',options:['Muy malo','Malo','Aceptable','Bueno','Excelente'],score:true,label:'Sabor'},
+      {id:'temperatura',category:'Calidad del servicio',q:'¿Cómo calificas la temperatura en la que recibes los alimentos?',help:'Valora si los alimentos llegan con una temperatura adecuada.',type:'scale',options:['Muy inadecuada','Inadecuada','Aceptable','Adecuada','Muy adecuada'],score:true,label:'Temperatura'},
+      {id:'presentacion',category:'Calidad sensorial',q:'¿Cómo percibes la presentación del plato o de las preparaciones?',help:'Observa organización, apariencia y atractivo visual.',type:'scale',options:['Muy mala','Mala','Aceptable','Buena','Excelente'],score:true,label:'Presentación'},
+      {id:'porcion',category:'Porciones',q:'¿Cómo percibes el tamaño de las porciones?',help:'Selecciona la opción que mejor describa tu experiencia habitual.',type:'single',options:['Muy pequeñas','Algo pequeñas','Adecuadas','Algo grandes','Muy grandes']},
+      {id:'variedad',category:'Variedad',q:'¿Qué tan satisfecho(a) estás con la variedad del ciclo de menú?',help:'Piensa en proteínas, acompañamientos, verduras, frutas y preparaciones.',type:'scale',options:['Muy insatisfecho(a)','Insatisfecho(a)','Neutral','Satisfecho(a)','Muy satisfecho(a)'],score:true,label:'Variedad'},
+      {id:'repeticion',category:'Variedad',q:'¿Sientes que algunas preparaciones se repiten demasiado?',help:'Esto permite detectar monotonía dentro del ciclo.',type:'single',options:['Sí, con mucha frecuencia','Sí, algunas veces','Muy pocas veces','No, la variedad es adecuada']},
+      {id:'verduras',category:'Equilibrio del menú',q:'¿Cómo calificas la presencia y variedad de verduras y ensaladas?',help:'Evalúa frecuencia, variedad y aceptación.',type:'scale',options:['Muy insuficiente','Insuficiente','Aceptable','Buena','Excelente'],score:true,label:'Verduras y ensaladas'},
+      {id:'proteinas',category:'Equilibrio del menú',q:'¿Cómo calificas la variedad de fuentes de proteína?',help:'Por ejemplo: carnes, pollo, pescado, huevo, leguminosas u otras opciones.',type:'scale',options:['Muy insuficiente','Insuficiente','Aceptable','Buena','Excelente'],score:true,label:'Fuentes de proteína'},
+      {id:'horario',category:'Servicio',q:'¿Qué tan satisfecho(a) estás con el cumplimiento de los horarios de alimentación?',help:'Considera puntualidad y oportunidad del servicio.',type:'scale',options:['Muy insatisfecho(a)','Insatisfecho(a)','Neutral','Satisfecho(a)','Muy satisfecho(a)'],score:true,label:'Cumplimiento de horario'},
+      {id:'desperdicio',category:'Aceptación',q:'¿Con qué frecuencia dejas alimentos sin consumir?',help:'La respuesta ayuda a identificar posibles problemas de aceptación o porción.',type:'single',options:['Casi siempre','Frecuentemente','A veces','Rara vez','Nunca o casi nunca']},
+      {id:'mejor',category:'Preferencias',q:'¿Qué preparación o componente del menú te gusta más?',help:'Puedes escribir un plato, alimento o tipo de preparación.',type:'text',placeholder:'Ej.: pollo al horno, ensaladas, sopas, fruta...'},
+      {id:'mejora',category:'Mejora continua',q:'¿Qué cambiarías o mejorarías del ciclo de menú?',help:'Puedes mencionar preparaciones, variedad, porciones, temperatura, presentación o cualquier otra sugerencia.',type:'textarea',placeholder:'Escribe aquí tu recomendación...'}
+    ]
+  },
+  concertacion:{
+    id:'concertacion',
+    mode:'concertation',
+    title:'Cuestionario de concertación del ciclo de menús',
+    shortTitle:'Concertación con padres',
+    emoji:'👨‍👩‍👧‍👦',
+    tag:'Padres de familia',
+    duration:'4–6 min',
+    description:'Recoge propuestas de alimentos, preparaciones y costumbres gastronómicas que las familias quisieran ver reflejadas en el ciclo de menú de sus hijos.',
+    notice:'Esta encuesta está dirigida a padres de familia. La información será utilizada como insumo para la construcción o ajuste del ciclo de menús, teniendo en cuenta la viabilidad nutricional y operativa del servicio.',
+    chips:['Padres de familia','Concertación','Preparaciones regionales'],
+    questions:[
+      {id:'grupos',category:'Alimentos a incluir',q:'¿Qué grupos de alimentos le gustaría que tuvieran mayor presencia en el ciclo de menú de su hijo(a)?',help:'Puede seleccionar varias opciones.',type:'multi',options:['Frutas','Verduras y hortalizas','Cereales, arroz, pasta, papa, yuca o plátano','Leguminosas como fríjol, lenteja, arveja o garbanzo','Carnes, pollo, pescado o huevo','Leche y derivados']},
+      {id:'proteinasFav',category:'Proteínas preferidas',q:'¿Cuáles fuentes de proteína considera que su hijo(a) consume con mayor agrado?',help:'Seleccione todas las que apliquen.',type:'multi',options:['Pollo','Carne de res','Cerdo','Pescado','Huevo','Fríjoles','Lentejas','Garbanzos']},
+      {id:'prepPrincipales',category:'Preparaciones',q:'¿Qué preparaciones principales le gustaría encontrar con mayor frecuencia en el ciclo de menú?',help:'Ejemplos: arroz con pollo, carne guisada, pollo al horno, lentejas, pasta, pescado, etc.',type:'textarea',placeholder:'Escriba aquí las preparaciones que le gustaría ver con mayor frecuencia...'},
+      {id:'verdurasFormas',category:'Verduras',q:'¿Qué preparaciones con verduras cree que podrían tener buena aceptación por parte de su hijo(a)?',help:'Puede seleccionar varias opciones.',type:'multi',options:['Ensaladas','Verduras cocidas','Cremas o sopas','Verduras incorporadas en arroz o pasta','Tortillas o preparaciones con huevo','Purés']},
+      {id:'frutas',category:'Frutas',q:'¿Qué frutas le gustaría que fueran incluidas con mayor frecuencia?',help:'Seleccione las opciones que prefiera.',type:'multi',options:['Banano','Papaya','Mango','Guayaba','Piña','Sandía','Melón','Manzana','Pera','Uva']},
+      {id:'acompanamientos',category:'Acompañamientos',q:'¿Qué acompañamientos considera que tienen mayor aceptación entre los niños?',help:'Seleccione varias opciones si lo desea.',type:'multi',options:['Arroz','Papa','Yuca','Plátano','Pasta','Arepa']},
+      {id:'regionales',category:'Tradición regional',q:'Pensando en las costumbres gastronómicas de Neiva y del Huila, ¿qué preparaciones tradicionales le gustaría que se tuvieran en cuenta?',help:'Seleccione las que considere más representativas o atractivas.',type:'multi',options:['Asado huilense','Tamal huilense','Preparaciones a base de maíz','Arepas tradicionales','Preparaciones con plátano o yuca','Sopas o preparaciones típicas familiares']},
+      {id:'regionalAbierta',category:'Tradición regional',q:'¿Hay alguna preparación tradicional de su familia o de la región que a su hijo(a) le guste especialmente y que considere que podría incluirse o adaptarse al menú?',help:'Puede escribir el nombre del plato o una descripción breve.',type:'textarea',placeholder:'Ej.: envuelto, arepa de maíz, sudado, mute, etc.'},
+      {id:'menosAceptacion',category:'Aceptación',q:'¿Cuáles preparaciones considera que suelen tener menor aceptación entre los niños?',help:'Esta pregunta ayuda a identificar posibles rechazos o preparaciones que requieran adaptación.',type:'textarea',placeholder:'Escriba aquí las preparaciones que suelen gustar menos...'},
+      {id:'formaProteina',category:'Forma de preparación',q:'¿Qué tipo de preparación considera que prefieren los niños para las carnes o proteínas?',help:'Seleccione todas las que apliquen.',type:'multi',options:['Guisadas','Al horno','Desmechadas','En salsa','A la plancha','Incorporadas en arroz, pasta u otras preparaciones']},
+      {id:'bebidas',category:'Bebidas y acompañamientos líquidos',q:'¿Qué bebidas o acompañamientos líquidos le gustaría que se contemplaran, cuando nutricionalmente sean adecuados?',help:'Seleccione una o varias opciones.',type:'multi',options:['Jugos o bebidas de fruta','Leche','Bebidas a base de leche','Agua']},
+      {id:'aspecto',category:'Prioridades del menú',q:'Al momento de construir el menú de su hijo(a), ¿qué aspecto considera más importante?',help:'Seleccione la opción principal.',type:'single',options:['Que sea nutricionalmente equilibrado','Que tenga buena aceptación','Que exista variedad','Que incluya alimentos de la región','Que incorpore frutas y verduras','Que las preparaciones sean variadas','Todos los anteriores']},
+      {id:'importanciaRegional',category:'Identidad regional',q:'En una escala de 1 a 5, ¿qué importancia tiene para usted que el ciclo de menú incluya preparaciones o alimentos propios de la región?',help:'1 significa nada importante y 5 muy importante.',type:'scale',options:['1 · Nada importante','2 · Poco importante','3 · Medianamente importante','4 · Importante','5 · Muy importante']},
+      {id:'especial',category:'Aporte de la familia',q:'¿Qué alimento o preparación le gustaría especialmente que fuera tenido en cuenta en el próximo ciclo de menú?',help:'Puede ser un alimento, una receta o una idea concreta.',type:'textarea',placeholder:'Escriba aquí su propuesta principal...'},
+      {id:'condicion',category:'Información adicional',q:'¿Su hijo(a) presenta alguna condición alimentaria que deba ser informada a la institución por los canales establecidos?',help:'Esta pregunta es orientativa. Si existe una condición, lo ideal es reportarla formalmente a la institución.',type:'single',options:['Alergia alimentaria','Intolerancia alimentaria','Restricción indicada por profesional de salud','Ninguna','Prefiero informarlo directamente a la institución']},
+      {id:'sugerencias',category:'Cierre',q:'¿Tiene alguna sugerencia adicional para la construcción del ciclo de menú de los niños y niñas?',help:'Este espacio es libre para comentarios finales.',type:'textarea',placeholder:'Escriba aquí su sugerencia final...',optional:true}
+    ]
+  }
+};
+
+let currentSurveyId=null;
+let current=0;
+let answers={};
+let currentSaved=null;
+
+const $=id=>document.getElementById(id);
+const iconsSingle=['🍽️','🥄','✅','📌','🌿','⭐','💡','🍎','🥗','🥛'];
+const iconsScale=['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣'];
+const iconsMulti=['🥗','🍎','🍲','🍗','🍚','🌽','🥕','🍉','🍛','🥛'];
+
+function escapeHTML(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function getSurveyDef(id){return surveys[id];}
+
+function migrateLegacyData(){
+  try{
+    const rawLegacy=localStorage.getItem(LEGACY_STORAGE_KEY);
+    const rawNew=localStorage.getItem(STORAGE_KEY);
+    if(rawNew) return;
+    if(!rawLegacy) return;
+    const parsed=JSON.parse(rawLegacy||'[]');
+    const migrated=(Array.isArray(parsed)?parsed:[]).map(r=>({
+      ...r,
+      survey:r.survey||'satisfaccion',
+      surveyTitle:r.surveyTitle||surveys.satisfaccion.title
+    }));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(migrated));
+  }catch(e){}
+}
+
+function getResponses(){
+  try{
+    const parsed=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+    return (Array.isArray(parsed)?parsed:[]).map(r=>({
+      ...r,
+      survey:r.survey||'satisfaccion',
+      surveyTitle:r.surveyTitle||((surveys[r.survey||'satisfaccion']||surveys.satisfaccion).title),
+      answers:r.answers||{}
+    }));
+  }catch(e){return []}
+}
+function setResponses(v){localStorage.setItem(STORAGE_KEY,JSON.stringify(v));}
+function responseScore(def,ans){const qs=def.questions.filter(q=>q.score&&ans[q.id]!==undefined);if(!qs.length)return 0;return Math.round(qs.reduce((s,q)=>s+(Number(ans[q.id])+1),0)/(qs.length*5)*100)}
+function scoreLabel(pct){return pct>=85?'Satisfacción muy alta':pct>=70?'Satisfacción favorable':pct>=55?'Satisfacción intermedia':'Oportunidad clara de mejora'}
+function pct(n,d){return d?Math.round((n/d)*100):0}
+function avgScale(rs,id){const vals=rs.map(r=>r.answers[id]).filter(v=>v!==undefined).map(v=>Number(v)+1);return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0}
+function pctScale(avg){return avg?Math.round((avg/5)*100):0}
+function countSingle(rs,q){const counts=Array(q.options.length).fill(0);rs.forEach(r=>{const v=r.answers[q.id];if(v!==undefined&&counts[v]!==undefined)counts[v]++});return counts}
+function countMulti(rs,q){const counts=Array(q.options.length).fill(0);rs.forEach(r=>{const arr=r.answers[q.id];if(Array.isArray(arr))arr.forEach(v=>{if(counts[v]!==undefined)counts[v]++})});return counts}
+function getTopLabel(labels,counts){const max=Math.max(...counts,0);if(max<=0)return 'Sin datos';const idx=counts.findIndex(x=>x===max);return labels[idx]||'Sin datos'}
+function selectedLabels(def,a,qid){const q=def.questions.find(x=>x.id===qid);if(!q)return '-';const v=a[qid];if(v===undefined||v===null||v==='')return '-';if(q.type==='single'||q.type==='scale')return q.options[v]||'-';if(q.type==='multi')return Array.isArray(v)&&v.length?v.map(i=>q.options[i]).join(', '):'-';return v}
+
+function renderSurveyCards(){
+  const wrap=$('surveyGrid');
+  wrap.innerHTML=Object.values(surveys).map(s=>`<article class="survey-card" onclick="startSurvey('${s.id}')"><div class="survey-head"><div class="survey-icon">${s.emoji}</div><span class="survey-tag">${escapeHTML(s.tag)}</span></div><div><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.description)}</p></div><div class="survey-meta"><span class="meta-chip">⏱ ${escapeHTML(s.duration)}</span>${s.chips.map(c=>`<span class="meta-chip">${escapeHTML(c)}</span>`).join('')}</div><div><button class="btn btn-primary">Realizar encuesta →</button></div></article>`).join('');
+}
+
+function populateSurveyFilter(){
+  $('filterSurvey').innerHTML=Object.values(surveys).map(s=>`<option value="${s.id}">${escapeHTML(s.title)}</option>`).join('');
+}
+
+function hideMain(){['home','quiz','finish','dashboard'].forEach(id=>$(id).style.display='none')}
+function showHome(){hideMain();$('home').style.display='block';$('footer').style.display='block';window.scrollTo({top:0,behavior:'smooth'})}
+function restartQuiz(){answers={};current=0;currentSaved=null;if(currentSurveyId) startSurvey(currentSurveyId); else showHome()}
+
+function startSurvey(id){
+  currentSurveyId=id;
+  current=0;
+  answers={};
+  currentSaved=null;
+  hideMain();
+  const def=getSurveyDef(id);
+  $('quiz').style.display='block';
+  $('questionSurvey').textContent=def.title;
+  renderQuestion();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderQuestion(){
+  const def=getSurveyDef(currentSurveyId), item=def.questions[current];
+  $('category').textContent=item.category;
+  $('question').textContent=item.q;
+  $('help').textContent=item.help || '';
+  $('questionSurvey').textContent=def.title;
+  const progress=Math.round(((current+1)/def.questions.length)*100);
+  $('stepText').textContent=`Pregunta ${current+1} de ${def.questions.length}`;
+  $('progressText').textContent=`${progress}%`;
+  $('progressBar').style.width=`${progress}%`;
+  $('backBtn').style.visibility=current===0?'hidden':'visible';
+  $('nextBtn').textContent=current===def.questions.length-1?'Finalizar ✓':'Siguiente →';
+  const area=$('answerArea'); area.innerHTML='';
+
+  if(item.type==='single' || item.type==='scale' || item.type==='multi'){
+    const wrap=document.createElement('div'); wrap.className='options';
+    const source=item.type==='scale'?iconsScale:(item.type==='multi'?iconsMulti:iconsSingle);
+    item.options.forEach((opt,i)=>{
+      const selected=item.type==='multi'?Array.isArray(answers[item.id])&&answers[item.id].includes(i):answers[item.id]===i;
+      const btn=document.createElement('button'); btn.type='button'; btn.className='option'+(selected?' selected':'');
+      btn.innerHTML=`<span class="icon">${source[i%source.length]}</span><div><div>${escapeHTML(opt)}</div>${item.type==='multi'?'<div class="subtext">Puede seleccionar varias opciones</div>':''}</div>`;
+      btn.onclick=()=>{
+        if(item.type==='multi'){
+          const arr=Array.isArray(answers[item.id])?[...answers[item.id]]:[];
+          const idx=arr.indexOf(i);
+          if(idx>=0) arr.splice(idx,1); else arr.push(i);
+          answers[item.id]=arr;
+        }else{
+          answers[item.id]=i;
+        }
+        renderQuestion();
+      };
+      wrap.appendChild(btn);
+    });
+    area.appendChild(wrap);
+    if(item.type==='multi'){
+      const note=document.createElement('div'); note.className='inline-help'; note.textContent='Puedes marcar una o varias opciones.'; area.appendChild(note);
+    }
+  }else if(item.type==='text'){
+    const input=document.createElement('input'); input.type='text'; input.placeholder=item.placeholder||''; input.value=answers[item.id]||''; input.oninput=e=>answers[item.id]=e.target.value; area.appendChild(input);
+  }else{
+    const ta=document.createElement('textarea'); ta.placeholder=item.placeholder||''; ta.value=answers[item.id]||''; ta.oninput=e=>answers[item.id]=e.target.value; area.appendChild(ta);
+  }
+}
+
+function validate(){
+  const def=getSurveyDef(currentSurveyId), item=def.questions[current], val=answers[item.id];
+  if(item.type==='single'||item.type==='scale'){
+    if(val===undefined){alert('Selecciona una respuesta para continuar.');return false}
+  }else if(item.type==='multi'){
+    if(!Array.isArray(val)||!val.length){alert('Selecciona al menos una opción para continuar.');return false}
+  }else if(!item.optional){
+    if(!String(val||'').trim()){alert('Por favor escribe tu respuesta para continuar.');return false}
+  }
+  return true;
+}
+function nextQuestion(){if(!validate())return;const def=getSurveyDef(currentSurveyId);if(current<def.questions.length-1){current++;renderQuestion()}else finishQuiz()}
+function prevQuestion(){if(current>0){current--;renderQuestion()}}
+
+function finishQuiz(){
+  const def=getSurveyDef(currentSurveyId);
+  const score=def.mode==='satisfaction'?responseScore(def,answers):100;
+  const entry={id:(crypto.randomUUID?crypto.randomUUID():'R-'+Date.now()+'-'+Math.random().toString(16).slice(2)),fecha:new Date().toISOString(),survey:def.id,surveyTitle:def.title,score,answers:JSON.parse(JSON.stringify(answers))};
+  const all=getResponses(); all.push(entry); setResponses(all); currentSaved=entry;
+  hideMain(); $('finish').style.display='block';
+  $('scoreText').textContent=(def.mode==='satisfaction'?score:100)+'%';
+  $('scoreRing').style.background=`conic-gradient(var(--primary) ${(def.mode==='satisfaction'?score:100)*3.6}deg,#e8efe9 0deg)`;
+  $('finishTitle').textContent=def.mode==='satisfaction'?'¡Gracias por ayudarnos a mejorar! 🌱':'¡Gracias por participar en la concertación! 🌱';
+  $('finishLead').textContent=def.mode==='satisfaction'?'Tu percepción aporta información valiosa para ajustar el ciclo de menú y fortalecer la calidad del servicio de alimentación.':'Su opinión será tenida en cuenta como insumo para la planeación y ajuste del ciclo de menú, respetando criterios técnicos, nutricionales y operativos del servicio.';
+  $('summaryBox').innerHTML=buildFinishSummary(def, entry);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function buildFinishSummary(def,entry){
+  if(def.mode==='satisfaction'){
+    return `<h3>Resumen de percepción</h3><div class="summary-row"><span>Índice orientativo de satisfacción</span><strong>${entry.score}%</strong></div><div class="summary-row"><span>Lectura general</span><strong>${scoreLabel(entry.score)}</strong></div><div class="summary-row"><span>Respuestas registradas</span><strong>${Object.keys(entry.answers).length}/${def.questions.length}</strong></div><p style="color:var(--muted);font-size:12px;margin:14px 0 0">El porcentaje integra las preguntas tipo escala. El análisis profesional debe complementarse con distribución de respuestas, desperdicio, repetición del menú y comentarios abiertos.</p>`;
+  }
+  const picks=[
+    ['Grupos de alimentos priorizados', selectedLabels(def,entry.answers,'grupos')],
+    ['Proteínas con mayor agrado', selectedLabels(def,entry.answers,'proteinasFav')],
+    ['Preparaciones regionales propuestas', selectedLabels(def,entry.answers,'regionales')],
+    ['Aspecto más importante', selectedLabels(def,entry.answers,'aspecto')]
+  ];
+  return `<h3>Resumen de participación</h3>${picks.map(r=>`<div class="summary-row"><span>${escapeHTML(r[0])}</span><strong style="text-align:right">${escapeHTML(r[1])}</strong></div>`).join('')}<p style="color:var(--muted);font-size:12px;margin:14px 0 0">La concertación permite identificar preferencias familiares. Las preparaciones solicitadas deben valorarse posteriormente según lineamientos nutricionales, edad de la población, gramajes, inocuidad y viabilidad operativa.</p>`;
+}
+
+function rowCSV(r){return r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')}
+function downloadBlob(content,type,name){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),500)}
+function downloadCurrentCSV(){
+  if(!currentSaved)return;
+  const def=getSurveyDef(currentSaved.survey);
+  const rows=[['Pregunta','Respuesta']];
+  def.questions.forEach(q=>rows.push([q.q,selectedLabels(def,currentSaved.answers,q.id)]));
+  downloadBlob('\ufeff'+rows.map(rowCSV).join('\n'),'text/csv;charset=utf-8;',`respuesta_${currentSaved.survey}.csv`)
+}
+
+function openAdminLogin(){$('adminPin').value='';$('adminModal').classList.add('open');setTimeout(()=>$('adminPin').focus(),80)}
+function closeAdminLogin(){$('adminModal').classList.remove('open')}
+function loginAdmin(){if($('adminPin').value!==ADMIN_PIN){alert('PIN incorrecto.');return}closeAdminLogin();showDashboard()}
+function showDashboard(){hideMain();$('dashboard').style.display='block';$('footer').style.display='none';renderDashboard();window.scrollTo({top:0,behavior:'smooth'})}
+function clearFilters(){$('filterFreq').value='all';$('filterFrom').value='';$('filterTo').value='';renderDashboard()}
+
+function filteredResponses(){
+  const surveyId=$('filterSurvey').value;
+  const from=$('filterFrom').value;
+  const to=$('filterTo').value;
+  const freq=$('filterFreq').value;
+  return getResponses().filter(r=>{
+    if(r.survey!==surveyId) return false;
+    const d=(r.fecha||'').slice(0,10);
+    if(from&&d<from) return false;
+    if(to&&d>to) return false;
+    if(surveyId==='satisfaccion' && freq!=='all' && String(r.answers.frecuencia)!==freq) return false;
+    return true;
+  });
+}
+
+function metricCards(data){$('metrics').innerHTML=data.map(x=>`<article class="metric"><div class="metric-top"><span class="label">${escapeHTML(x.label)}</span><div class="metric-icon">${x.icon}</div></div><div class="value">${escapeHTML(x.value)}</div><div class="trend">${escapeHTML(x.help)}</div></article>`).join('')}
+function renderBarRows(labels,counts,totalResponses,usePercentOfResponses=true){
+  if(!labels.length) return '<div class="empty">Sin datos.</div>';
+  const max=Math.max(...counts,1);
+  return `<div class="bar-list">${labels.map((label,i)=>{const count=counts[i]||0;const pctVal=usePercentOfResponses?pct(count,totalResponses):Math.round(count/max*100);return `<div class="bar-row"><div class="bar-label">${escapeHTML(label)}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(count/max*100)}%"></div></div><div class="bar-value">${usePercentOfResponses?`${pctVal}%`:`${count}`}</div></div>`}).join('')}</div>`;
+}
+function renderDistributionRows(labels,counts){
+  if(!labels.length) return '<div class="empty">Sin datos.</div>';
+  const max=Math.max(...counts,1);
+  return `<div class="distribution">${labels.map((label,i)=>`<div class="dist-row"><div class="dist-name" title="${escapeHTML(label)}">${escapeHTML(label)}</div><div class="dist-track"><div class="dist-fill" style="width:${Math.round((counts[i]||0)/max*100)}%"></div></div><div class="dist-count">${counts[i]||0}</div></div>`).join('')}</div>`;
+}
+function renderDonut(pctValue,legendRows,centerLabel='favorable'){
+  return `<div class="donut-wrap"><div class="donut" style="background:conic-gradient(var(--primary) ${pctValue*3.6}deg,#edf2ee 0deg)"><div class="donut-center"><strong>${pctValue}%</strong><span>${escapeHTML(centerLabel)}</span></div></div><div class="legend">${legendRows.map(r=>`<div class="legend-row"><span>${escapeHTML(r[0])}</span><span>${escapeHTML(r[1])}</span></div>`).join('')}</div></div>`;
+}
+function renderComments(items){$('comments').innerHTML=items.length?items.slice(0,120).map(x=>`<div class="comment"><p>${escapeHTML(x.text)}</p><small>${escapeHTML(x.type)} · ${new Date(x.date).toLocaleString('es-CO')}</small></div>`).join(''):'<div class="empty">Aún no hay comentarios abiertos.</div>'}
+
+function renderDashboard(){
+  const surveyId=$('filterSurvey').value;
+  const def=getSurveyDef(surveyId);
+  const rs=filteredResponses();
+  $('dashTitle').textContent=surveyId==='satisfaccion'?'Panel de satisfacción del ciclo de menú':'Panel de concertación del ciclo de menús';
+  $('dashLead').textContent=surveyId==='satisfaccion'?'Lectura consolidada de satisfacción, aceptación y oportunidades de mejora.':'Lectura consolidada de preferencias familiares, preparaciones solicitadas y enfoque cultural/regional del menú.';
+  $('freqField').style.display=surveyId==='satisfaccion'?'block':'none';
+  if(surveyId==='satisfaccion') renderDashboardSatisfaction(def,rs); else renderDashboardConcertation(def,rs);
+}
+
+function renderDashboardSatisfaction(def,rs){
+  const total=rs.length;
+  const avg=total?Math.round(rs.reduce((s,r)=>s+(r.score??responseScore(def,r.answers)),0)/total):0;
+  const favorable=total?pct(rs.filter(r=>Number(r.answers.satisfaccion)>=3).length,total):0;
+  const adequate=total?pct(rs.filter(r=>Number(r.answers.porcion)===2).length,total):0;
+  const lowWaste=total?pct(rs.filter(r=>Number(r.answers.desperdicio)>=3).length,total):0;
+  metricCards([
+    {icon:'🧾',value:String(total),label:'Respuestas analizadas',help:'Muestra disponible en el filtro actual'},
+    {icon:'🌿',value:avg+'%',label:'Índice global',help:'Promedio de los indicadores tipo escala'},
+    {icon:'😊',value:favorable+'%',label:'Satisfacción favorable',help:'Respuestas 4–5 en satisfacción general'},
+    {icon:'🍽️',value:adequate+'%',label:'Porción adecuada',help:`${lowWaste}% reporta poco o ningún desperdicio`}
+  ]);
+  const scored=def.questions.filter(q=>q.score);
+  $('panel1Title').textContent='Desempeño por dimensión';
+  $('panel1Sub').textContent='Promedio convertido a porcentaje sobre escala de 1 a 5.';
+  $('panel1Pill').textContent='Indicadores clave';
+  $('panel1Content').innerHTML=total?renderBarRows(scored.map(q=>q.label||q.category),scored.map(q=>pctScale(avgScale(rs,q.id))),100,false):'<div class="empty">Aún no hay respuestas para calcular indicadores.</div>';
+
+  const satQ=def.questions.find(q=>q.id==='satisfaccion');
+  const satCounts=countSingle(rs,satQ);
+  $('panel2Title').textContent='Satisfacción favorable';
+  $('panel2Sub').textContent='Personas con respuesta 4 o 5 en satisfacción general.';
+  $('panel2Content').innerHTML=renderDonut(favorable,[['Favorables (4–5)',satCounts[3]+satCounts[4]],['Neutrales (3)',satCounts[2]||0],['Desfavorables (1–2)',(satCounts[0]||0)+(satCounts[1]||0)],['Total',total]],'favorable');
+
+  const dims=scored.map(q=>({label:q.label||q.category,pct:pctScale(avgScale(rs,q.id))})).sort((a,b)=>b.pct-a.pct);
+  const best=dims[0],worst=dims[dims.length-1];
+  const repeatHigh=total?pct(rs.filter(r=>Number(r.answers.repeticion)<=1).length,total):0;
+  const wasteHigh=total?pct(rs.filter(r=>Number(r.answers.desperdicio)<=1).length,total):0;
+  const portionOK=adequate;
+  $('insightStatus').textContent=total?`${total} respuesta${total===1?'':'s'}`:'Sin datos';
+  $('insights').innerHTML=total?`<div class="insight good"><h4>✅ Principal fortaleza</h4><p><strong>${escapeHTML(best.label)}</strong> alcanza ${best.pct}%. Es la dimensión mejor valorada dentro del periodo analizado.</p></div><div class="insight warn"><h4>⚠️ Prioridad de revisión</h4><p><strong>${escapeHTML(worst.label)}</strong> registra ${worst.pct}%, el resultado relativo más bajo. Conviene revisar causas operativas y sensoriales.</p></div><div class="insight ${repeatHigh>=40||wasteHigh>=25?'alert':'good'}"><h4>🔎 Señales de aceptación</h4><p>${repeatHigh}% percibe repetición frecuente, ${wasteHigh}% deja alimentos con frecuencia y ${portionOK}% considera adecuada la porción.</p></div>`:'<div class="empty" style="grid-column:1/-1">Completa al menos una encuesta para generar hallazgos.</div>';
+
+  const porcionQ=def.questions.find(q=>q.id==='porcion');
+  const repQ=def.questions.find(q=>q.id==='repeticion');
+  const despQ=def.questions.find(q=>q.id==='desperdicio');
+  $('panel3Title').textContent='Distribuciones clave';
+  $('panel3Sub').textContent='Lectura rápida de porciones, repetición del menú y desperdicio.';
+  $('panel3Content').innerHTML=total?`<div style="display:grid;gap:18px"><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Percepción del tamaño de las porciones</div>${renderDistributionRows(porcionQ.options,countSingle(rs,porcionQ))}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Repetición del menú</div>${renderDistributionRows(repQ.options,countSingle(rs,repQ))}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Desperdicio / alimentos no consumidos</div>${renderDistributionRows(despQ.options,countSingle(rs,despQ))}</div></div>`:'<div class="empty">Sin datos para distribución.</div>';
+
+  const comments=[]; rs.slice().reverse().forEach(r=>{if((r.answers.mejor||'').trim())comments.push({type:'Preferencia',text:r.answers.mejor,date:r.fecha}); if((r.answers.mejora||'').trim())comments.push({type:'Sugerencia',text:r.answers.mejora,date:r.fecha})});
+  $('commentsTitle').textContent='Comentarios y preferencias';
+  $('commentsSub').textContent='Respuestas abiertas para lectura cualitativa.';
+  renderComments(comments);
+
+  $('autoReport').innerHTML=buildSatisfactionReport(def,rs);
+  renderSatisfactionTable(def,rs);
+}
+
+function buildSatisfactionReport(def,rs){
+  if(!rs.length) return '<p>No hay respuestas en el filtro seleccionado. El informe se generará automáticamente cuando existan datos.</p>';
+  const n=rs.length;
+  const scored=def.questions.filter(q=>q.score);
+  const dims=scored.map(q=>({label:q.label||q.category,pct:pctScale(avgScale(rs,q.id))})).sort((a,b)=>b.pct-a.pct);
+  const best=dims[0], worst=dims[dims.length-1];
+  const global=Math.round(rs.reduce((s,r)=>s+(r.score??responseScore(def,r.answers)),0)/n);
+  const fav=pct(rs.filter(r=>Number(r.answers.satisfaccion)>=3).length,n);
+  const portion=pct(rs.filter(r=>Number(r.answers.porcion)===2).length,n);
+  const repeat=pct(rs.filter(r=>Number(r.answers.repeticion)<=1).length,n);
+  const waste=pct(rs.filter(r=>Number(r.answers.desperdicio)<=1).length,n);
+  let rec=[];
+  if(worst.pct<70)rec.push(`Priorizar un plan de mejora para ${worst.label.toLowerCase()}, revisando causas de producción, distribución y percepción del usuario.`);
+  if(repeat>=35)rec.push('Revisar la rotación de preparaciones y la frecuencia de recetas similares para disminuir la percepción de monotonía.');
+  if(portion<70)rec.push('Verificar estandarización de porciones, gramajes y adecuación al grupo atendido.');
+  if(waste>=20)rec.push('Realizar observación de sobrantes y relacionarla con preparaciones específicas, porción servida y aceptación sensorial.');
+  if(!rec.length)rec.push('Mantener seguimiento periódico y conservar las prácticas asociadas a los indicadores mejor valorados.');
+  return `<h4>Resumen</h4><p>Se analizaron <strong>${n}</strong> respuestas. El índice global orientativo fue de <strong>${global}%</strong> y el <strong>${fav}%</strong> calificó su satisfacción general en niveles favorables (4 o 5).</p><h4>Fortalezas</h4><p>La dimensión con mayor valoración fue <strong>${escapeHTML(best.label)}</strong> (${best.pct}%). Este resultado puede utilizarse como referencia para identificar prácticas que conviene mantener.</p><h4>Oportunidades de mejora</h4><p>La dimensión con menor resultado relativo fue <strong>${escapeHTML(worst.label)}</strong> (${worst.pct}%). Además, ${repeat}% reporta repetición frecuente del menú, ${portion}% considera adecuada la porción y ${waste}% refiere dejar alimentos con frecuencia.</p><h4>Recomendaciones técnicas orientativas</h4><ul>${rec.map(r=>`<li>${escapeHTML(r)}</li>`).join('')}</ul><h4>Nota de interpretación</h4><p>Los resultados representan percepción de satisfacción y aceptación. No sustituyen una valoración de adecuación nutricional del menú, que requiere revisar aporte nutricional, gramajes, población objetivo, condiciones clínicas cuando apliquen y criterios técnicos del servicio de alimentación.</p>`;
+}
+function renderSatisfactionTable(def,rs){
+  if(!rs.length){$('responsesTable').innerHTML='<div class="empty">No hay respuestas registradas.</div>';return}
+  const rows=rs.slice().reverse().map((r,i)=>`<tr><td><strong>${rs.length-i}</strong></td><td>${new Date(r.fecha).toLocaleString('es-CO')}</td><td>${r.score??responseScore(def,r.answers)}%</td><td>${escapeHTML(selectedLabels(def,r.answers,'satisfaccion'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'porcion'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'repeticion'))}</td><td>${escapeHTML(r.answers.mejora||'-')}</td></tr>`).join('');
+  $('responsesTable').innerHTML=`<table class="data-table"><thead><tr><th>#</th><th>Fecha</th><th>Índice</th><th>Satisfacción</th><th>Porción</th><th>Repetición</th><th>Sugerencia</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderDashboardConcertation(def,rs){
+  const total=rs.length;
+  const gruposQ=def.questions.find(q=>q.id==='grupos');
+  const protQ=def.questions.find(q=>q.id==='proteinasFav');
+  const regQ=def.questions.find(q=>q.id==='regionales');
+  const frutasQ=def.questions.find(q=>q.id==='frutas');
+  const aspectoQ=def.questions.find(q=>q.id==='aspecto');
+  const impQ=def.questions.find(q=>q.id==='importanciaRegional');
+  const condQ=def.questions.find(q=>q.id==='condicion');
+
+  const gruposCounts=countMulti(rs,gruposQ);
+  const protCounts=countMulti(rs,protQ);
+  const regCounts=countMulti(rs,regQ);
+  const frutaCounts=countMulti(rs,frutasQ);
+  const aspectoCounts=countSingle(rs,aspectoQ);
+  const impCounts=countSingle(rs,impQ);
+  const condCounts=countSingle(rs,condQ);
+
+  const topGrupo=getTopLabel(gruposQ.options,gruposCounts);
+  const topProt=getTopLabel(protQ.options,protCounts);
+  const topRegional=getTopLabel(regQ.options,regCounts);
+  const importantRegional=total?pct(rs.filter(r=>Number(r.answers.importanciaRegional)>=3).length,total):0;
+  const restrictive=total?pct(rs.filter(r=>[0,1,2,4].includes(Number(r.answers.condicion))).length,total):0;
+
+  metricCards([
+    {icon:'👨‍👩‍👧‍👦',value:String(total),label:'Familias participantes',help:'Respuestas analizadas en el filtro actual'},
+    {icon:'🌎',value:importantRegional+'%',label:'Importancia de lo regional',help:'Padres que califican 4–5 la inclusión de preparaciones regionales'},
+    {icon:'🍗',value:topProt,label:'Proteína más preferida',help:'Opción más seleccionada por las familias'},
+    {icon:'🫓',value:topRegional,label:'Preparación regional top',help:`${restrictive}% reporta alguna condición o prefiere informarla directamente`}
+  ]);
+
+  $('panel1Title').textContent='Grupos de alimentos más solicitados';
+  $('panel1Sub').textContent='Porcentaje de familias que desean mayor presencia de cada grupo en el ciclo de menú.';
+  $('panel1Pill').textContent='Concertación';
+  $('panel1Content').innerHTML=total?renderBarRows(gruposQ.options,gruposCounts,total,true):'<div class="empty">Aún no hay respuestas para analizar.</div>';
+
+  $('panel2Title').textContent='Importancia de incorporar preparaciones regionales';
+  $('panel2Sub').textContent='Lectura de la escala 1 a 5 respondida por los padres de familia.';
+  $('panel2Content').innerHTML=renderDonut(importantRegional,[['Importante / Muy importante (4–5)', (impCounts[3]||0)+(impCounts[4]||0)],['Medianamente importante (3)', impCounts[2]||0],['Poco o nada importante (1–2)', (impCounts[0]||0)+(impCounts[1]||0)],['Total', total]],'importancia alta');
+
+  const topAspect=getTopLabel(aspectoQ.options,aspectoCounts);
+  const topFruit=getTopLabel(frutasQ.options,frutaCounts);
+  $('insightStatus').textContent=total?`${total} familia${total===1?'':'s'}`:'Sin datos';
+  $('insights').innerHTML=total?`<div class="insight good"><h4>✅ Principal solicitud</h4><p>El grupo de alimentos más solicitado para reforzar en el menú es <strong>${escapeHTML(topGrupo)}</strong>.</p></div><div class="insight warn"><h4>🍎 Preferencias alimentarias</h4><p>La proteína con mayor agrado reportada es <strong>${escapeHTML(topProt)}</strong> y la fruta más solicitada es <strong>${escapeHTML(topFruit)}</strong>.</p></div><div class="insight ${importantRegional>=70?'good':'alert'}"><h4>🌎 Identidad regional</h4><p>${importantRegional}% considera importante incluir preparaciones regionales. El aspecto más priorizado al construir el menú es <strong>${escapeHTML(topAspect)}</strong>.</p></div>`:'<div class="empty" style="grid-column:1/-1">Completa al menos una encuesta para generar hallazgos.</div>';
+
+  $('panel3Title').textContent='Preferencias específicas';
+  $('panel3Sub').textContent='Lectura combinada de proteínas, frutas, prioridad del menú y condiciones alimentarias reportadas.';
+  $('panel3Content').innerHTML=total?`<div style="display:grid;gap:18px"><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Proteínas de mayor agrado</div>${renderBarRows(protQ.options,protCounts,total,true)}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Frutas sugeridas con mayor frecuencia</div>${renderBarRows(frutasQ.options,frutaCounts,total,true)}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Aspecto más importante al construir el menú</div>${renderDistributionRows(aspectoQ.options,aspectoCounts)}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Condiciones alimentarias informadas</div>${renderDistributionRows(condQ.options,condCounts)}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Preparaciones regionales solicitadas</div>${renderBarRows(regQ.options,regCounts,total,true)}</div></div>`:'<div class="empty">Sin datos para distribución.</div>';
+
+  const comments=[];
+  rs.slice().reverse().forEach(r=>{
+    [['Preparaciones sugeridas',r.answers.prepPrincipales],['Tradición familiar/regional',r.answers.regionalAbierta],['Menor aceptación',r.answers.menosAceptacion],['Propuesta principal',r.answers.especial],['Sugerencia adicional',r.answers.sugerencias]].forEach(x=>{if(String(x[1]||'').trim())comments.push({type:x[0],text:x[1],date:r.fecha})});
+  });
+  $('commentsTitle').textContent='Aportes cualitativos de las familias';
+  $('commentsSub').textContent='Propuestas, preparaciones sugeridas y comentarios abiertos.';
+  renderComments(comments);
+
+  $('autoReport').innerHTML=buildConcertationReport(def,rs,{gruposCounts,protCounts,regCounts,frutaCounts,aspectoCounts,impCounts,condCounts});
+  renderConcertationTable(def,rs);
+}
+
+function buildConcertationReport(def,rs,data){
+  if(!rs.length) return '<p>No hay respuestas en el filtro seleccionado. El informe se generará automáticamente cuando existan datos.</p>';
+  const n=rs.length;
+  const gruposQ=def.questions.find(q=>q.id==='grupos');
+  const protQ=def.questions.find(q=>q.id==='proteinasFav');
+  const regQ=def.questions.find(q=>q.id==='regionales');
+  const frutasQ=def.questions.find(q=>q.id==='frutas');
+  const aspectoQ=def.questions.find(q=>q.id==='aspecto');
+  const condQ=def.questions.find(q=>q.id==='condicion');
+  const importantRegional=pct(rs.filter(r=>Number(r.answers.importanciaRegional)>=3).length,n);
+  const restrictions=pct(rs.filter(r=>[0,1,2,4].includes(Number(r.answers.condicion))).length,n);
+  const topGroups=gruposQ.options.map((label,i)=>({label,count:data.gruposCounts[i]||0})).sort((a,b)=>b.count-a.count).slice(0,3).filter(x=>x.count>0);
+  const topProteins=protQ.options.map((label,i)=>({label,count:data.protCounts[i]||0})).sort((a,b)=>b.count-a.count).slice(0,3).filter(x=>x.count>0);
+  const topRegional=regQ.options.map((label,i)=>({label,count:data.regCounts[i]||0})).sort((a,b)=>b.count-a.count).slice(0,3).filter(x=>x.count>0);
+  const topFruits=frutasQ.options.map((label,i)=>({label,count:data.frutaCounts[i]||0})).sort((a,b)=>b.count-a.count).slice(0,3).filter(x=>x.count>0);
+  const aspectoTop=getTopLabel(aspectoQ.options,data.aspectoCounts);
+  const condicionTop=getTopLabel(condQ.options,data.condCounts);
+  let rec=[
+    'Utilizar los resultados de concertación como insumo para la planeación, pero validar cada propuesta frente a lineamientos nutricionales, edades, porciones, inocuidad y presupuesto.',
+    'Priorizar la inclusión o adaptación de las preparaciones más solicitadas, especialmente aquellas con valor cultural regional, procurando versiones adecuadas para población infantil.',
+    'Cruzar estas preferencias con la oferta actual y con pruebas de aceptación, para decidir qué preparaciones conservar, introducir o reformular dentro del ciclo de menú.'
+  ];
+  return `<h4>Resumen</h4><p>Se analizaron <strong>${n}</strong> respuestas de padres de familia. El <strong>${importantRegional}%</strong> considera importante o muy importante que el ciclo de menú incorpore preparaciones o alimentos propios de la región.</p><h4>Preferencias principales</h4><p>Los grupos de alimentos con mayor solicitud de presencia fueron <strong>${topGroups.map(x=>escapeHTML(x.label)).join(', ')||'sin datos suficientes'}</strong>. En proteínas, destacaron <strong>${topProteins.map(x=>escapeHTML(x.label)).join(', ')||'sin datos suficientes'}</strong>. Entre las frutas más solicitadas aparecen <strong>${topFruits.map(x=>escapeHTML(x.label)).join(', ')||'sin datos suficientes'}</strong>.</p><h4>Identidad cultural y menú</h4><p>Las preparaciones regionales con mayor interés fueron <strong>${topRegional.map(x=>escapeHTML(x.label)).join(', ')||'sin datos suficientes'}</strong>. El aspecto considerado más importante al construir el menú fue <strong>${escapeHTML(aspectoTop)}</strong>.</p><h4>Información adicional</h4><p>El <strong>${restrictions}%</strong> reporta alguna condición alimentaria o prefiere informarla directamente a la institución. La categoría más frecuente en esta pregunta fue <strong>${escapeHTML(condicionTop)}</strong>.</p><h4>Recomendaciones técnicas orientativas</h4><ul>${rec.map(r=>`<li>${escapeHTML(r)}</li>`).join('')}</ul><h4>Nota de interpretación</h4><p>La concertación recoge expectativas y preferencias familiares. Su finalidad no es definir automáticamente el menú, sino orientar una toma de decisiones técnica y contextualizada por parte del profesional en nutrición y del servicio de alimentación.</p>`;
+}
+function renderConcertationTable(def,rs){
+  if(!rs.length){$('responsesTable').innerHTML='<div class="empty">No hay respuestas registradas.</div>';return}
+  const rows=rs.slice().reverse().map((r,i)=>`<tr><td><strong>${rs.length-i}</strong></td><td>${new Date(r.fecha).toLocaleString('es-CO')}</td><td>${escapeHTML(selectedLabels(def,r.answers,'grupos'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'proteinasFav'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'regionales'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'aspecto'))}</td><td>${escapeHTML((r.answers.especial||r.answers.sugerencias||'-'))}</td></tr>`).join('');
+  $('responsesTable').innerHTML=`<table class="data-table"><thead><tr><th>#</th><th>Fecha</th><th>Grupos solicitados</th><th>Proteínas preferidas</th><th>Regionales sugeridas</th><th>Prioridad principal</th><th>Aporte / sugerencia</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function exportAllCSV(){
+  const surveyId=$('filterSurvey').value;
+  const def=getSurveyDef(surveyId);
+  const rs=filteredResponses();
+  if(!rs.length){alert('No hay datos para exportar.');return}
+  const headers=['ID','Encuesta','Fecha',...(def.mode==='satisfaction'?['Índice %']:[]),...def.questions.map(q=>q.q)];
+  const rows=[headers];
+  rs.forEach(r=>rows.push([r.id,def.title,r.fecha,...(def.mode==='satisfaction'?[r.score??responseScore(def,r.answers)]:[]),...def.questions.map(q=>selectedLabels(def,r.answers,q.id))]));
+  downloadBlob('\ufeff'+rows.map(rowCSV).join('\n'),'text/csv;charset=utf-8;',`base_${surveyId}.csv`)
+}
+function exportJSON(){const data=getResponses();downloadBlob(JSON.stringify({exportado:new Date().toISOString(),version:3,respuestas:data},null,2),'application/json','backup_encuestas_nutricion.json')}
+function copyReport(){const txt=$('autoReport').innerText;navigator.clipboard?.writeText(txt).then(()=>alert('Informe copiado al portapapeles.')).catch(()=>alert('No fue posible copiar automáticamente.'))}
+function clearAllData(){if(!confirm('¿Seguro que deseas borrar TODAS las respuestas guardadas en este navegador? Esta acción no se puede deshacer.'))return;if(!confirm('Última confirmación: se eliminará la base completa.'))return;localStorage.removeItem(STORAGE_KEY);renderDashboard()}
+
+function loadDemoData(){
+  if(!confirm('Esto agregará respuestas DEMO para visualizar el panel. Podrás borrarlas después. ¿Continuar?'))return;
+  const arr=getResponses();
+  const satTexts=['Más variedad de ensaladas','Evitar repetir pollo varias veces','Mejorar la temperatura de la sopa','Las porciones están bien','Más fruta fresca','Variar los acompañamientos','Todo bien','Mejorar la presentación'];
+  const favs=['Pollo al horno','Fruta','Arroz con verduras','Sopa','Ensaladas','Carne guisada'];
+  for(let i=0;i<24;i++){
+    const a={frecuencia:i%4,satisfaccion:[3,4,3,2,4,3,1,4][i%8],sabor:[3,4,3,3,4,2,2,4][i%8],temperatura:[3,3,2,3,4,2,3,4][i%8],presentacion:[3,4,3,2,4,3,3,4][i%8],porcion:[2,2,1,2,2,3,2,2][i%8],variedad:[2,3,3,2,4,2,1,3][i%8],repeticion:[1,2,1,2,3,1,0,2][i%8],verduras:[2,3,2,3,4,2,1,3][i%8],proteinas:[3,4,3,2,4,3,2,4][i%8],horario:[4,4,3,4,4,3,2,4][i%8],desperdicio:[3,4,2,3,4,2,1,4][i%8],mejor:favs[i%favs.length],mejora:satTexts[i%satTexts.length]};
+    arr.push({id:'DEMO-SAT-'+Date.now()+'-'+i,fecha:new Date(Date.now()-i*86400000).toISOString(),survey:'satisfaccion',surveyTitle:surveys.satisfaccion.title,score:responseScore(surveys.satisfaccion,a),answers:a});
+  }
+  const preps=['Arroz con pollo y ensalada','Pasta con carne desmechada','Lentejas con arroz y tajadas','Pescado al horno con puré'];
+  const regionals=['Tamal huilense','Asado huilense','Arepas tradicionales','Preparaciones con plátano'];
+  const lowAcc=['Sopas muy cargadas','Verduras enteras','Alimentos muy condimentados','Hígado'];
+  const especiales=['Más mango y sandía','Incluir envueltos de maíz','Más pollo al horno','Fruta fresca como postre'];
+  for(let i=0;i<18;i++){
+    const a={
+      grupos:[0,2,4].filter((_,idx)=>((i+idx)%2===0)).concat(i%3===0?[1]:[]),
+      proteinasFav:[0,3,4,5].filter((_,idx)=>((i+idx)%3!==1)),
+      prepPrincipales:preps[i%preps.length],
+      verdurasFormas:[0,3,5].filter((_,idx)=>((i+idx)%2===0)),
+      frutas:[0,2,4,5,7].filter((_,idx)=>((i+idx)%2===0)),
+      acompanamientos:[0,1,3,4].filter((_,idx)=>((i+idx)%2===0)),
+      regionales:[i%6, (i+2)%6].filter((v,idx,arr)=>arr.indexOf(v)===idx),
+      regionalAbierta:regionals[i%regionals.length],
+      menosAceptacion:lowAcc[i%lowAcc.length],
+      formaProteina:[0,1,2,5].filter((_,idx)=>((i+idx)%2===0)),
+      bebidas:[0,1,3].filter((_,idx)=>((i+idx)%2===0)),
+      aspecto:[6,0,2,4][i%4],
+      importanciaRegional:[4,3,4,2,4][i%5],
+      especial:especiales[i%especiales.length],
+      condicion:[3,3,4,1,3,2][i%6],
+      sugerencias:['Más variedad de fruta','Adaptar platos típicos a los niños','No repetir tanto la pasta','Agregar más verduras suaves'][i%4]
+    };
+    arr.push({id:'DEMO-CON-'+Date.now()+'-'+i,fecha:new Date(Date.now()-i*43200000).toISOString(),survey:'concertacion',surveyTitle:surveys.concertacion.title,score:100,answers:a});
+  }
+  setResponses(arr); renderDashboard();
+}
+
+window.addEventListener('click',e=>{if(e.target===$('adminModal'))closeAdminLogin()});
+window.addEventListener('DOMContentLoaded',()=>{
+  migrateLegacyData();
+  renderSurveyCards();
+  populateSurveyFilter();
+  $('filterSurvey').value='satisfaccion';
+  showHome();
+});
+</script>
+</body>
+</html>
