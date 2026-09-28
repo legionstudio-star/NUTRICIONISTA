@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Encuesta de Satisfacción - Ciclo de Menú</title>
+<style>
+  :root{
+    --bg:#f6fbf7;
+    --card:#ffffff;
+    --text:#173b2b;
+    --muted:#708277;
+    --primary:#2f9e63;
+    --primary-dark:#22794b;
+    --accent:#f3b53f;
+    --soft:#e8f5ed;
+    --danger:#d65b5b;
+    --shadow:0 18px 45px rgba(32,83,57,.12);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(circle at 12% 15%, rgba(74,190,122,.15), transparent 23%),
+      radial-gradient(circle at 88% 10%, rgba(243,181,63,.14), transparent 22%),
+      linear-gradient(180deg,#fbfefb 0%,var(--bg) 100%);
+    color:var(--text);
+    min-height:100vh;
+  }
+  .app{max-width:900px;margin:auto;padding:28px 18px 60px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:24px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:800}
+  .brand-mark{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,var(--primary),#62c98a);display:grid;place-items:center;color:#fff;font-size:23px;box-shadow:var(--shadow)}
+  .brand small{display:block;color:var(--muted);font-weight:600;font-size:12px;margin-top:2px}
+  .badge{background:#fff;border:1px solid #dfeae3;border-radius:999px;padding:9px 13px;color:var(--muted);font-size:13px;box-shadow:0 8px 20px rgba(32,83,57,.06)}
+  .card{background:rgba(255,255,255,.96);border:1px solid rgba(214,231,220,.9);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}
+  .hero{padding:46px 42px;text-align:center}
+  .hero-emoji{width:92px;height:92px;margin:0 auto 20px;border-radius:28px;background:linear-gradient(135deg,#e8f7ee,#fff2d4);display:grid;place-items:center;font-size:46px;transform:rotate(-3deg)}
+  h1{font-size:clamp(30px,5vw,48px);line-height:1.05;margin:0 0 16px}
+  .lead{max-width:680px;margin:0 auto 26px;color:var(--muted);font-size:17px;line-height:1.6}
+  .notice{max-width:650px;margin:18px auto;background:var(--soft);padding:14px 16px;border-radius:16px;color:#436b55;font-size:14px}
+  .btn{border:0;border-radius:16px;padding:15px 22px;font-weight:800;font-size:15px;cursor:pointer;transition:.2s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+  .btn-primary{background:linear-gradient(135deg,var(--primary),#45b979);color:#fff;box-shadow:0 12px 25px rgba(47,158,99,.25)}
+  .btn-primary:hover{transform:translateY(-2px)}
+  .btn-secondary{background:#eef6f1;color:var(--primary-dark)}
+  .quiz{display:none}
+  .progress-wrap{padding:24px 28px 0}
+  .progress-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-bottom:10px}
+  .progress{height:11px;background:#edf2ee;border-radius:999px;overflow:hidden}
+  .progress > div{height:100%;width:0;background:linear-gradient(90deg,var(--primary),#6cc890);transition:width .35s ease}
+  .question-card{padding:34px 32px 30px}
+  .category{display:inline-block;background:#f0f8f3;color:var(--primary-dark);font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:7px 10px;margin-bottom:14px}
+  .q-title{font-size:clamp(23px,4vw,34px);line-height:1.22;margin:0 0 10px}
+  .q-help{color:var(--muted);margin:0 0 24px;line-height:1.5}
+  .options{display:grid;gap:12px}
+  .option{width:100%;border:1.5px solid #e0ebe4;background:#fff;border-radius:18px;padding:16px 17px;text-align:left;display:flex;gap:13px;align-items:center;cursor:pointer;font-size:15px;font-weight:700;color:#264b38;transition:.18s ease}
+  .option:hover{border-color:#91c8a9;transform:translateY(-1px);box-shadow:0 8px 16px rgba(32,83,57,.06)}
+  .option.selected{border-color:var(--primary);background:#ecf8f1;box-shadow:0 0 0 3px rgba(47,158,99,.08)}
+  .option .icon{width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:#f4f8f5;display:grid;place-items:center;font-size:19px}
+  textarea,input[type=text]{width:100%;border:1.5px solid #dfe9e2;border-radius:16px;padding:15px 16px;font:inherit;color:var(--text);outline:none;background:#fff}
+  textarea:focus,input[type=text]:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(47,158,99,.08)}
+  textarea{min-height:135px;resize:vertical}
+  .nav{display:flex;justify-content:space-between;gap:12px;margin-top:26px}
+  .nav .btn{min-width:125px}
+  .finish{display:none;padding:44px 34px;text-align:center}
+  .score-ring{width:132px;height:132px;border-radius:50%;margin:0 auto 22px;background:conic-gradient(var(--primary) 0deg, var(--primary) 0deg, #e8efe9 0deg);display:grid;place-items:center;position:relative}
+  .score-ring:after{content:"";position:absolute;width:98px;height:98px;background:#fff;border-radius:50%}
+  .score-ring strong{position:relative;z-index:2;font-size:28px}
+  .summary{max-width:650px;margin:24px auto;text-align:left;background:#f8fbf9;border:1px solid #e2eee6;border-radius:20px;padding:20px}
+  .summary h3{margin-top:0}
+  .summary-row{display:flex;justify-content:space-between;gap:20px;padding:9px 0;border-bottom:1px dashed #dfe9e2;font-size:14px}
+  .summary-row:last-child{border-bottom:0}
+  .footer{margin-top:18px;text-align:center;color:#95a49a;font-size:12px}
+  @media(max-width:640px){.hero{padding:34px 22px}.question-card{padding:28px 20px}.progress-wrap{padding:22px 20px 0}.topbar{align-items:flex-start}.badge{display:none}.nav{flex-direction:column-reverse}.nav .btn{width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">🥗</div>
+      <div>Nutrición & Bienestar<small>Evaluación del ciclo de menú</small></div>
+    </div>
+    <div class="badge">Encuesta confidencial · 3–4 min</div>
+  </div>
+
+  <section class="card hero" id="intro">
+    <div class="hero-emoji">🍽️</div>
+    <h1>Tu opinión también alimenta buenas decisiones</h1>
+    <p class="lead">Queremos conocer tu experiencia con el ciclo de menú. Tus respuestas ayudarán a identificar oportunidades de mejora en sabor, variedad, presentación, porciones y calidad del servicio de alimentación.</p>
+    <div class="notice">No hay respuestas correctas o incorrectas. Responde pensando en tu experiencia durante el <strong>ciclo completo de menú</strong>, no solamente en la comida de hoy.</div>
+    <button class="btn btn-primary" onclick="startQuiz()">Comenzar encuesta →</button>
+  </section>
+
+  <section class="card quiz" id="quiz">
+    <div class="progress-wrap">
+      <div class="progress-meta"><span id="stepText">Pregunta 1 de 14</span><span id="progressText">7%</span></div>
+      <div class="progress"><div id="progressBar"></div></div>
+    </div>
+    <div class="question-card">
+      <span class="category" id="category"></span>
+      <h2 class="q-title" id="question"></h2>
+      <p class="q-help" id="help"></p>
+      <div id="answerArea"></div>
+      <div class="nav">
+        <button class="btn btn-secondary" id="backBtn" onclick="prevQuestion()">← Anterior</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Siguiente →</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card finish" id="finish">
+    <div class="score-ring" id="scoreRing"><strong id="scoreText">0%</strong></div>
+    <h2>¡Gracias por ayudarnos a mejorar! 🌱</h2>
+    <p class="lead">Tu percepción aporta información valiosa para ajustar el ciclo de menú y fortalecer la calidad del servicio de alimentación.</p>
+    <div class="summary" id="summaryBox"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="downloadCSV()">Descargar respuesta CSV</button>
+      <button class="btn btn-secondary" onclick="restartQuiz()">Responder nuevamente</button>
+    </div>
+  </section>
+  <div class="footer">Instrumento orientativo para evaluación de satisfacción del servicio de alimentación · Personalizable por la profesional en nutrición.</div>
+</div>
+
+<script>
+const questions = [
+  {id:'frecuencia',category:'Contexto',q:'¿Con qué frecuencia consumes los alimentos ofrecidos por el servicio?',help:'Esto nos ayuda a interpretar mejor tu experiencia con el ciclo.',type:'single',options:['Todos o casi todos los días','3–4 veces por semana','1–2 veces por semana','Ocasionalmente']},
+  {id:'satisfaccion',category:'Satisfacción general',q:'En general, ¿qué tan satisfecho(a) estás con el ciclo de menú?',help:'Piensa en el conjunto de preparaciones servidas durante el ciclo.',type:'scale',options:['Muy insatisfecho(a)','Insatisfecho(a)','Neutral','Satisfecho(a)','Muy satisfecho(a)'],score:true},
+  {id:'sabor',category:'Calidad sensorial',q:'¿Cómo calificas el sabor de las preparaciones?',help:'Considera sazón, agrado general y consistencia entre los días.',type:'scale',options:['Muy malo','Malo','Aceptable','Bueno','Excelente'],score:true},
+  {id:'temperatura',category:'Calidad sensorial',q:'¿Cómo calificas la temperatura de los alimentos al momento de recibirlos?',help:'Evalúa si los alimentos calientes llegan calientes y los fríos se conservan adecuadamente.',type:'scale',options:['Muy inadecuada','Inadecuada','Aceptable','Adecuada','Muy adecuada'],score:true},
+  {id:'presentacion',category:'Presentación',q:'¿Qué tan atractiva te parece la presentación de los platos?',help:'Incluye aspecto, combinación visual y forma de servir.',type:'scale',options:['Nada atractiva','Poco atractiva','Aceptable','Atractiva','Muy atractiva'],score:true},
+  {id:'porcion',category:'Porciones',q:'¿Cómo percibes el tamaño de las porciones?',help:'Selecciona la opción que mejor describa tu experiencia habitual.',type:'single',options:['Muy pequeñas','Algo pequeñas','Adecuadas','Algo grandes','Muy grandes']},
+  {id:'variedad',category:'Variedad',q:'¿Qué tan satisfecho(a) estás con la variedad del ciclo de menú?',help:'Piensa en proteínas, acompañamientos, verduras, frutas y preparaciones.',type:'scale',options:['Muy insatisfecho(a)','Insatisfecho(a)','Neutral','Satisfecho(a)','Muy satisfecho(a)'],score:true},
+  {id:'repeticion',category:'Variedad',q:'¿Sientes que algunas preparaciones se repiten demasiado?',help:'Esto permite detectar monotonía dentro del ciclo.',type:'single',options:['Sí, con mucha frecuencia','Sí, algunas veces','Muy pocas veces','No, la variedad es adecuada']},
+  {id:'verduras',category:'Equilibrio del menú',q:'¿Cómo calificas la presencia y variedad de verduras y ensaladas?',help:'Evalúa frecuencia, variedad y aceptación.',type:'scale',options:['Muy insuficiente','Insuficiente','Aceptable','Buena','Excelente'],score:true},
+  {id:'proteinas',category:'Equilibrio del menú',q:'¿Cómo calificas la variedad de fuentes de proteína?',help:'Por ejemplo: carnes, pollo, pescado, huevo, leguminosas u otras opciones.',type:'scale',options:['Muy insuficiente','Insuficiente','Aceptable','Buena','Excelente'],score:true},
+  {id:'horario',category:'Servicio',q:'¿Qué tan satisfecho(a) estás con el cumplimiento de los horarios de alimentación?',help:'Considera puntualidad y oportunidad del servicio.',type:'scale',options:['Muy insatisfecho(a)','Insatisfecho(a)','Neutral','Satisfecho(a)','Muy satisfecho(a)'],score:true},
+  {id:'desperdicio',category:'Aceptación',q:'¿Con qué frecuencia dejas alimentos sin consumir?',help:'La respuesta ayuda a identificar posibles problemas de aceptación o porción.',type:'single',options:['Casi siempre','Frecuentemente','A veces','Rara vez','Nunca o casi nunca']},
+  {id:'mejor',category:'Preferencias',q:'¿Qué preparación o componente del menú te gusta más?',help:'Puedes escribir un plato, alimento o tipo de preparación.',type:'text',placeholder:'Ej.: pollo al horno, ensaladas, sopas, fruta...'},
+  {id:'mejora',category:'Mejora continua',q:'¿Qué cambiarías o mejorarías del ciclo de menú?',help:'Puedes mencionar preparaciones, variedad, porciones, temperatura, presentación o cualquier otra sugerencia.',type:'textarea',placeholder:'Escribe aquí tu recomendación...'}
+];
+
+let current=0;
+let answers={};
+
+function startQuiz(){document.getElementById('intro').style.display='none';document.getElementById('quiz').style.display='block';renderQuestion();}
+
+function renderQuestion(){
+  const item=questions[current];
+  document.getElementById('category').textContent=item.category;
+  document.getElementById('question').textContent=item.q;
+  document.getElementById('help').textContent=item.help || '';
+  const pct=Math.round(((current+1)/questions.length)*100);
+  document.getElementById('stepText').textContent=`Pregunta ${current+1} de ${questions.length}`;
+  document.getElementById('progressText').textContent=`${pct}%`;
+  document.getElementById('progressBar').style.width=`${pct}%`;
+  document.getElementById('backBtn').style.visibility=current===0?'hidden':'visible';
+  document.getElementById('nextBtn').textContent=current===questions.length-1?'Finalizar ✓':'Siguiente →';
+
+  const area=document.getElementById('answerArea');
+  area.innerHTML='';
+  if(item.type==='single'||item.type==='scale'){
+    const wrap=document.createElement('div'); wrap.className='options';
+    const icons=item.type==='scale'?['😣','🙁','😐','🙂','🤩']:['🍽️','🥄','✅','📌','🌿'];
+    item.options.forEach((opt,i)=>{
+      const b=document.createElement('button');
+      b.type='button'; b.className='option'+(answers[item.id]===i?' selected':'');
+      b.innerHTML=`<span class="icon">${icons[i]||'•'}</span><span>${opt}</span>`;
+      b.onclick=()=>{answers[item.id]=i; renderQuestion();};
+      wrap.appendChild(b);
+    });
+    area.appendChild(wrap);
+  } else if(item.type==='text'){
+    const input=document.createElement('input'); input.type='text'; input.placeholder=item.placeholder||''; input.value=answers[item.id]||'';
+    input.oninput=e=>answers[item.id]=e.target.value; area.appendChild(input);
+  } else {
+    const ta=document.createElement('textarea'); ta.placeholder=item.placeholder||''; ta.value=answers[item.id]||'';
+    ta.oninput=e=>answers[item.id]=e.target.value; area.appendChild(ta);
+  }
+}
+
+function validate(){
+  const item=questions[current];
+  if(item.type==='text'||item.type==='textarea') return true;
+  if(answers[item.id]===undefined){alert('Selecciona una respuesta para continuar.');return false;}
+  return true;
+}
+function nextQuestion(){if(!validate())return;if(current<questions.length-1){current++;renderQuestion();}else finishQuiz();}
+function prevQuestion(){if(current>0){current--;renderQuestion();}}
+
+function finishQuiz(){
+  document.getElementById('quiz').style.display='none';document.getElementById('finish').style.display='block';
+  const scored=questions.filter(q=>q.score && answers[q.id]!==undefined);
+  const total=scored.reduce((sum,q)=>sum+(answers[q.id]+1),0);
+  const max=scored.length*5;
+  const pct=max?Math.round((total/max)*100):0;
+  document.getElementById('scoreText').textContent=pct+'%';
+  document.getElementById('scoreRing').style.background=`conic-gradient(var(--primary) ${pct*3.6}deg,#e8efe9 0deg)`;
+  let label=pct>=85?'Satisfacción muy alta':pct>=70?'Satisfacción favorable':pct>=55?'Satisfacción intermedia':'Oportunidad clara de mejora';
+  document.getElementById('summaryBox').innerHTML=`<h3>Resumen de percepción</h3><div class="summary-row"><span>Índice orientativo de satisfacción</span><strong>${pct}%</strong></div><div class="summary-row"><span>Lectura general</span><strong>${label}</strong></div><div class="summary-row"><span>Respuestas registradas</span><strong>${Object.keys(answers).length}/${questions.length}</strong></div><p style="color:var(--muted);font-size:12px;margin:14px 0 0">Este porcentaje es un indicador orientativo de satisfacción construido con las preguntas tipo escala. Para evaluación institucional debe analizarse junto con frecuencias, comentarios abiertos y características de la población.</p>`;
+  localStorage.setItem('encuestaMenuUltimaRespuesta',JSON.stringify({fecha:new Date().toISOString(),answers}));
+}
+
+function downloadCSV(){
+  const rows=[['Pregunta','Respuesta']];
+  questions.forEach(q=>{
+    const val=answers[q.id];
+    let out='';
+    if(val!==undefined){out=(q.type==='single'||q.type==='scale')?q.options[val]:val;}
+    rows.push([q.q,out]);
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');a.href=url;a.download='respuesta_encuesta_ciclo_menu.csv';a.click();URL.revokeObjectURL(url);
+}
+function restartQuiz(){answers={};current=0;document.getElementById('finish').style.display='none';document.getElementById('intro').style.display='block';}
+</script>
+</body>
+</html>
