@@ -66,7 +66,7 @@
   .option.selected{border-color:var(--primary);background:#ecf8f1;box-shadow:0 0 0 3px rgba(47,158,99,.08)}
   .option .icon{width:38px;height:38px;flex:0 0 38px;border-radius:12px;background:#f4f8f5;display:grid;place-items:center;font-size:19px}
   .option .subtext{font-size:12px;color:var(--muted);font-weight:600}
-  textarea,input[type=text],input[type=password],input[type=date],select{width:100%;border:1.5px solid #dfe9e2;border-radius:14px;padding:12px 14px;color:var(--text);outline:none;background:#fff}
+  textarea,input[type=text],input[type=email],input[type=password],input[type=date],select{width:100%;border:1.5px solid #dfe9e2;border-radius:14px;padding:12px 14px;color:var(--text);outline:none;background:#fff}
   textarea:focus,input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(47,158,99,.08)}
   textarea{min-height:135px;resize:vertical}
   .inline-help{font-size:12px;color:var(--muted);margin-top:8px}
@@ -149,6 +149,31 @@
   .modal-card{background:#fff;border-radius:24px;max-width:420px;width:100%;padding:26px;box-shadow:0 28px 70px rgba(0,0,0,.24)}
   .modal-card h2{margin:0 0 8px}.modal-card p{color:var(--muted);font-size:13px;line-height:1.5}.modal-actions{display:flex;gap:9px;margin-top:15px}.modal-actions .btn{flex:1}.pin-note{font-size:11px;color:#8a958e;background:#f5f8f6;border-radius:10px;padding:9px;margin-top:10px}
 
+  .btn[disabled]{opacity:.65;cursor:not-allowed;transform:none!important}
+  .status-msg{display:none;margin-top:14px;border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.5;text-align:left}
+  .status-msg.show{display:block}
+  .status-msg.info{background:var(--soft);color:#2f5c43;border:1px solid #cfe6d8}
+  .status-msg.ok{background:#f1faf4;color:#22794b;border:1px solid #cfe6d8}
+  .status-msg.warn{background:#fff8ea;color:#725622;border:1px solid #f4dfad}
+  .status-msg.error{background:#fff2f2;color:#8f3434;border:1px solid #f1cccc}
+  .status-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .status-actions .btn{padding:9px 13px;border-radius:12px;font-size:13px}
+  .spinner{display:inline-block;width:15px;height:15px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-3px;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .dash-body{display:grid;gap:18px}
+  .live-pill{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;border-radius:999px;padding:6px 11px;background:rgba(255,255,255,.12);color:#d4e9dc;margin-top:12px}
+  .live-pill:before{content:"";width:8px;height:8px;border-radius:50%;background:#9fb3a7}
+  .live-pill.on:before{background:#7ef0a6;box-shadow:0 0 0 3px rgba(126,240,166,.25)}
+  .session-info{font-size:12px;color:#aee2c2;margin-top:8px;word-break:break-all}
+  .migration{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+  .migration p{margin:4px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+  .toast-wrap{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:70;display:grid;gap:8px;width:min(420px,calc(100% - 32px));pointer-events:none}
+  .toast{background:#173b2b;color:#fff;border-radius:14px;padding:12px 15px;font-size:13px;line-height:1.45;box-shadow:0 14px 30px rgba(0,0,0,.2);animation:toastIn .2s ease}
+  .toast.error{background:#8f3434}.toast.warn{background:#7a5a1d}
+  @keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .modal-card .form-gap{margin-top:10px}
+  #confirmModal .modal-card{max-width:460px}
+
   @media(max-width:920px){
     .survey-grid,.metrics{grid-template-columns:repeat(2,1fr)}
     .dash-grid{grid-template-columns:1fr}
@@ -165,7 +190,7 @@
     .app{padding:17px 12px 50px}.top-actions{flex-direction:column;align-items:flex-end}.question-top{flex-direction:column;align-items:flex-start}
   }
   @media print{
-    body{background:#fff}.topbar,.dash-actions,.filters,.footer,.admin-link{display:none!important}
+    body{background:#fff}.topbar,.dash-actions,.filters,.footer,.admin-link,.toast-wrap,#dashStatus,#migrationPanel,.live-pill{display:none!important}
     .app{max-width:none;padding:0}.dashboard{display:block!important}.dash-head{box-shadow:none}.panel,.metric{box-shadow:none;break-inside:avoid}
     .dash-grid{grid-template-columns:1fr 1fr}.comment-list{max-height:none;overflow:visible}.data-table{font-size:9px}
   }
@@ -175,7 +200,7 @@
 <div class="app">
   <div class="topbar">
     <div class="brand"><div class="brand-mark">🥗</div><div>Nutrición & Bienestar<small>Encuestas interactivas del ciclo de menú</small></div></div>
-    <div class="top-actions"><div class="badge">2 encuestas · panel nutricionista · 100% local</div><button class="admin-link" onclick="openAdminLogin()">📊 Panel nutricionista</button></div>
+    <div class="top-actions"><div class="badge">2 encuestas · panel nutricionista · datos protegidos</div><button class="admin-link" id="adminBtn" onclick="openAdminLogin()">📊 Panel nutricionista</button></div>
   </div>
 
   <section class="card home" id="home">
@@ -183,7 +208,8 @@
       <div class="hero-emoji">🍽️</div>
       <h1>Construyamos mejores menús juntos</h1>
       <p class="lead">Esta página ahora incluye <strong>dos encuestas</strong>: una para evaluar la satisfacción con el ciclo de menú y otra de <strong>concertación dirigida a padres de familia</strong>, para recoger propuestas, alimentos y preparaciones que les gustaría incluir para sus hijos.</p>
-      <div class="notice">Selecciona la encuesta que deseas realizar. El panel privado de nutrición consolida porcentajes, gráficos, análisis, comentarios e informe automático por cada tipo de encuesta.</div>
+      <div class="notice">Selecciona la encuesta que deseas realizar. Las respuestas son <strong>anónimas</strong>: no se solicitan nombres, documentos ni correos. El panel privado de nutrición consolida porcentajes, gráficos, análisis, comentarios e informe automático por cada tipo de encuesta.</div>
+      <div class="status-msg" id="homeMsg"></div>
 
       <div class="survey-grid" id="surveyGrid"></div>
     </div>
@@ -200,6 +226,7 @@
       <h2 class="q-title" id="question"></h2>
       <p class="q-help" id="help"></p>
       <div id="answerArea"></div>
+      <div class="status-msg" id="quizMsg" role="alert"></div>
       <div class="nav"><button class="btn btn-secondary" id="backBtn" onclick="prevQuestion()">← Anterior</button><button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Siguiente →</button></div>
     </div>
   </section>
@@ -208,6 +235,7 @@
     <div class="score-ring" id="scoreRing"><strong id="scoreText">100%</strong></div>
     <h2 id="finishTitle">¡Gracias por participar! 🌱</h2>
     <p class="lead" id="finishLead">Tu información fue registrada correctamente.</p>
+    <div class="status-msg" id="finishMsg" style="max-width:760px;margin:0 auto 10px"></div>
     <div class="summary" id="summaryBox"></div>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
       <button class="btn btn-primary" onclick="downloadCurrentCSV()">Descargar mi respuesta</button>
@@ -223,17 +251,31 @@
           <div style="font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#aee2c2;margin-bottom:7px">Panel profesional</div>
           <h1 id="dashTitle">Inteligencia del ciclo de menú</h1>
           <p id="dashLead">Análisis consolidado de respuestas para la nutricionista.</p>
+          <div class="session-info" id="sessionInfo"></div>
+          <span class="live-pill" id="livePill" title="Actualización automática cuando llegan nuevas respuestas">Conectando…</span>
         </div>
         <div class="dash-actions">
           <button class="btn btn-ghost" onclick="showHome()">← Inicio</button>
+          <button class="btn btn-ghost" id="reloadBtn" onclick="loadDashboardData()">↻ Actualizar</button>
           <button class="btn btn-ghost" onclick="exportAllCSV()">CSV</button>
           <button class="btn btn-ghost" onclick="exportJSON()">Backup</button>
-          <button class="btn btn-ghost" onclick="loadDemoData()">Datos demo</button>
           <button class="btn btn-ghost" onclick="window.print()">Informe PDF</button>
+          <button class="btn btn-ghost" onclick="logoutAdmin()">Cerrar sesión</button>
         </div>
       </header>
 
-      <div class="warning-box">🔒 <strong>Privacidad:</strong> este archivo guarda las respuestas en el navegador de este dispositivo. El PIN evita accesos casuales, pero no sustituye un sistema de autenticación de servidor. Para uso institucional multiusuario conviene conectarlo a una base de datos segura.</div>
+      <div class="warning-box">🔒 <strong>Privacidad:</strong> las respuestas se guardan en una base de datos protegida (Supabase). Solo las cuentas autorizadas de nutrición pueden consultarlas después de iniciar sesión. No se recopilan nombres, documentos ni correos de quienes responden. La información sobre condiciones alimentarias es orientativa y no reemplaza la historia clínica ni el reporte formal a la institución.</div>
+
+      <div class="status-msg" id="dashStatus" role="status"></div>
+
+      <section class="panel" id="migrationPanel" style="display:none">
+        <div class="migration">
+          <div><h3>Respuestas locales de la versión anterior</h3><p id="migrationText"></p></div>
+          <button class="btn btn-primary" id="migrateBtn" onclick="migrateLocalResponses()">Migrar respuestas locales a Supabase</button>
+        </div>
+      </section>
+
+      <div class="dash-body" id="dashBody">
 
       <section class="filters">
         <div class="field"><label>Encuesta</label><select id="filterSurvey" onchange="renderDashboard()"></select></div>
@@ -278,30 +320,63 @@
           <div class="report-box" id="autoReport"></div>
         </article>
         <article class="panel">
-          <div class="panel-head"><div><h3>Base de respuestas</h3><p class="panel-sub">Vista rápida de los registros filtrados.</p></div><button class="btn btn-danger" onclick="clearAllData()">Borrar todo</button></div>
+          <div class="panel-head"><div><h3>Base de respuestas</h3><p class="panel-sub">Vista rápida de los registros filtrados.</p></div><button class="btn btn-danger" onclick="clearAllData()">Borrar encuesta</button></div>
           <div class="table-wrap" id="responsesTable"></div>
         </article>
       </section>
+      </div>
     </div>
   </section>
 
-  <div class="footer" id="footer">Diseñado para encuestas nutricionales del ciclo de menú · Guarda la información en este navegador</div>
+  <div class="footer" id="footer">Diseñado para encuestas nutricionales del ciclo de menú · Respuestas anónimas almacenadas de forma segura</div>
 </div>
 
 <div class="modal" id="adminModal">
   <div class="modal-card">
     <h2>Acceso al panel</h2>
-    <p>Ingresa el PIN para abrir el panel privado de la nutricionista.</p>
-    <input type="password" id="adminPin" placeholder="PIN de acceso" onkeydown="if(event.key==='Enter') loginAdmin()" />
-    <div class="pin-note">PIN actual: <strong>2026</strong>. Puedes cambiarlo después directamente en el archivo HTML si lo deseas.</div>
-    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeAdminLogin()">Cancelar</button><button class="btn btn-primary" onclick="loginAdmin()">Ingresar</button></div>
+    <p>Inicia sesión con la cuenta autorizada de la nutricionista.</p>
+    <form id="loginForm" onsubmit="event.preventDefault();loginAdmin()">
+      <input type="email" id="adminEmail" placeholder="Correo electrónico" autocomplete="username" required />
+      <input type="password" id="adminPassword" class="form-gap" placeholder="Contraseña" autocomplete="current-password" required />
+      <div class="status-msg" id="loginMsg" role="alert"></div>
+      <div class="pin-note">La sesión se mantiene abierta en este dispositivo hasta que pulses «Cerrar sesión».</div>
+      <div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="closeAdminLogin()">Cancelar</button><button type="submit" class="btn btn-primary" id="loginBtn">Ingresar</button></div>
+    </form>
   </div>
 </div>
 
+<div class="modal" id="confirmModal">
+  <div class="modal-card">
+    <h2 id="confirmTitle">Confirmar</h2>
+    <p id="confirmText"></p>
+    <input type="text" id="confirmInput" autocomplete="off" style="display:none" />
+    <div class="modal-actions"><button type="button" class="btn btn-secondary" id="confirmCancel">Cancelar</button><button type="button" class="btn btn-danger" id="confirmOk">Confirmar</button></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/* =====================================================================
+   CONFIGURACIÓN DE SUPABASE
+   Reemplaza estos dos valores con los de tu proyecto:
+   Supabase Dashboard → Project Settings → API Keys (o botón "Connect")
+     - SUPABASE_URL:      "Project URL"
+     - SUPABASE_ANON_KEY: clave "anon public" (o "publishable", sb_publishable_...)
+   Ambas son públicas por diseño; la seguridad la da Row Level Security.
+   NUNCA pegues aquí la clave "service_role" ni la "secret key".
+   ===================================================================== */
+const SUPABASE_URL='https://urmbbkxcrqdnhzvmgpgg.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_OzeXhSwPjlZVhn4iDZflsQ_HM_blKMy';
+
+const TABLE='survey_responses';
+// Claves antiguas de localStorage (solo se leen para migrarlas a Supabase)
 const STORAGE_KEY='encuestaMenuRespuestasV3';
 const LEGACY_STORAGE_KEY='encuestaMenuRespuestasV2';
-const ADMIN_PIN='2026';
+// Cola de emergencia: respuestas que no se pudieron enviar y se reintentan después
+const PENDING_KEY='encuestaMenuPendientesSupabase';
+const REQUEST_TIMEOUT_MS=15000;
 
 const surveys={
   satisfaccion:{
@@ -377,34 +452,105 @@ const iconsMulti=['🥗','🍎','🍲','🍗','🍚','🌽','🥕','🍉','🍛'
 function escapeHTML(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function getSurveyDef(id){return surveys[id];}
 
-function migrateLegacyData(){
-  try{
-    const rawLegacy=localStorage.getItem(LEGACY_STORAGE_KEY);
-    const rawNew=localStorage.getItem(STORAGE_KEY);
-    if(rawNew) return;
-    if(!rawLegacy) return;
-    const parsed=JSON.parse(rawLegacy||'[]');
-    const migrated=(Array.isArray(parsed)?parsed:[]).map(r=>({
-      ...r,
-      survey:r.survey||'satisfaccion',
-      surveyTitle:r.surveyTitle||surveys.satisfaccion.title
-    }));
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(migrated));
-  }catch(e){}
+/* ---------------- Cliente Supabase ---------------- */
+const CONFIG_OK=/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(SUPABASE_URL)&&!/PON_AQUI/.test(SUPABASE_ANON_KEY)&&SUPABASE_ANON_KEY.length>20;
+const sb=(CONFIG_OK&&window.supabase)?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}):null;
+if(!CONFIG_OK) console.warn('[Encuestas] Falta configurar SUPABASE_URL / SUPABASE_ANON_KEY en index.html');
+
+let responsesCache=[];      // respuestas traídas de Supabase, orden created_at DESC
+let realtimeChannel=null;
+let adminUser=null;         // usuario autenticado y verificado en admin_users
+let manualLogout=false;
+let savingResponse=false;
+let pendingEntry=null;      // respuesta que falló al guardarse (para reintentar)
+
+function newClientId(){return crypto.randomUUID?crypto.randomUUID():'R-'+Date.now()+'-'+Math.random().toString(16).slice(2)}
+function clone(v){return JSON.parse(JSON.stringify(v))}
+
+// Convierte una fila de Supabase al formato que usa el resto del panel.
+function normalizeRow(row){
+  return {
+    id:row.id,
+    fecha:row.created_at,
+    survey:row.survey_type,
+    surveyTitle:row.survey_title||(surveys[row.survey_type]||{}).title||'',
+    score:row.score,
+    answers:(row.answers&&typeof row.answers==='object')?row.answers:{},
+    source:row.source
+  };
+}
+function getResponses(){return responsesCache}
+
+// Fecha local (YYYY-MM-DD) para que los filtros coincidan con el calendario del usuario, no con UTC.
+function localDateKey(iso){const d=new Date(iso);if(isNaN(d))return '';return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+
+function withTimeout(builder){
+  const ctrl=new AbortController();
+  const t=setTimeout(()=>ctrl.abort(),REQUEST_TIMEOUT_MS);
+  return builder.abortSignal(ctrl.signal).then(r=>{clearTimeout(t);return r},e=>{clearTimeout(t);throw e});
+}
+function isAuthError(err){if(!err)return false;return err.code==='PGRST301'||err.code==='PGRST303'||/jwt/i.test(err.message||'')}
+function friendlyError(err){
+  if(!CONFIG_OK||!sb) return 'La plataforma aún no está conectada a la base de datos (falta la configuración de Supabase).';
+  if(!navigator.onLine) return 'No hay conexión a internet en este momento.';
+  const m=String(err&&(err.message||err)||'');
+  if(err&&err.name==='AbortError'||/abort/i.test(m)) return 'El servidor tardó demasiado en responder.';
+  if(/fetch|network|Failed to/i.test(m)) return 'No fue posible conectar con el servidor.';
+  if(/paused|503|502/i.test(m)) return 'El servidor de datos no está disponible temporalmente.';
+  return 'Ocurrió un error al comunicarse con el servidor.';
 }
 
-function getResponses(){
-  try{
-    const parsed=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
-    return (Array.isArray(parsed)?parsed:[]).map(r=>({
-      ...r,
-      survey:r.survey||'satisfaccion',
-      surveyTitle:r.surveyTitle||((surveys[r.survey||'satisfaccion']||surveys.satisfaccion).title),
-      answers:r.answers||{}
-    }));
-  }catch(e){return []}
+/* Inserta una respuesta. legacy_id = id generado en el navegador → evita duplicados en reintentos. */
+async function insertResponse(entry,source){
+  if(!sb) throw new Error('config');
+  if(!navigator.onLine) throw new Error('offline');
+  const {error}=await withTimeout(sb.from(TABLE).insert({
+    survey_type:entry.survey,
+    survey_title:entry.surveyTitle,
+    score:entry.survey==='satisfaccion'?entry.score:null,
+    answers:entry.answers,
+    source,
+    legacy_id:entry.id
+  }));
+  if(error){
+    if(error.code==='23505') return 'duplicate'; // ya estaba guardada (reintento)
+    throw error;
+  }
+  return 'ok';
 }
-function setResponses(v){localStorage.setItem(STORAGE_KEY,JSON.stringify(v));}
+
+/* Cola local de emergencia (solo respuestas pendientes de envío) */
+function readPending(){try{const v=JSON.parse(localStorage.getItem(PENDING_KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}}
+function writePending(list){try{if(list.length)localStorage.setItem(PENDING_KEY,JSON.stringify(list));else localStorage.removeItem(PENDING_KEY)}catch(e){}}
+function queuePending(entry){const list=readPending();if(!list.some(x=>x.id===entry.id))list.push(entry);writePending(list)}
+let flushing=false;
+async function flushPending(){
+  if(flushing||!sb||!navigator.onLine)return;
+  const list=readPending(); if(!list.length)return;
+  flushing=true; let sent=0;
+  try{
+    for(const entry of list){
+      try{await insertResponse(entry,'cola_local');sent++;writePending(readPending().filter(x=>x.id!==entry.id))}
+      catch(e){break}
+    }
+  }finally{flushing=false}
+  if(sent) showToast(sent===1?'Se envió 1 respuesta que estaba pendiente en este dispositivo.':`Se enviaron ${sent} respuestas que estaban pendientes en este dispositivo.`);
+}
+
+/* Mensajes visuales */
+function setStatus(id,type,html){const el=$(id);if(!el)return;if(!type){el.className='status-msg';el.innerHTML='';return}el.className='status-msg show '+type;el.innerHTML=html}
+function showToast(msg,type=''){const w=$('toastWrap');const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;w.appendChild(t);setTimeout(()=>t.remove(),4500)}
+function confirmDialog({title,text,confirmLabel='Confirmar',requireText=''}){
+  return new Promise(resolve=>{
+    $('confirmTitle').textContent=title;$('confirmText').textContent=text;
+    const input=$('confirmInput');input.value='';input.style.display=requireText?'block':'none';input.placeholder=requireText?`Escribe ${requireText}`:'';
+    $('confirmOk').textContent=confirmLabel;$('confirmModal').classList.add('open');
+    if(requireText)setTimeout(()=>input.focus(),80);
+    const done=v=>{$('confirmModal').classList.remove('open');$('confirmOk').onclick=null;$('confirmCancel').onclick=null;resolve(v)};
+    $('confirmOk').onclick=()=>{if(requireText&&input.value.trim().toUpperCase()!==requireText){input.focus();return}done(true)};
+    $('confirmCancel').onclick=()=>done(false);
+  });
+}
 function responseScore(def,ans){const qs=def.questions.filter(q=>q.score&&ans[q.id]!==undefined);if(!qs.length)return 0;return Math.round(qs.reduce((s,q)=>s+(Number(ans[q.id])+1),0)/(qs.length*5)*100)}
 function scoreLabel(pct){return pct>=85?'Satisfacción muy alta':pct>=70?'Satisfacción favorable':pct>=55?'Satisfacción intermedia':'Oportunidad clara de mejora'}
 function pct(n,d){return d?Math.round((n/d)*100):0}
@@ -424,7 +570,7 @@ function populateSurveyFilter(){
   $('filterSurvey').innerHTML=Object.values(surveys).map(s=>`<option value="${s.id}">${escapeHTML(s.title)}</option>`).join('');
 }
 
-function hideMain(){['home','quiz','finish','dashboard'].forEach(id=>$(id).style.display='none')}
+function hideMain(){if($('dashboard').style.display==='block')unsubscribeRealtime();['home','quiz','finish','dashboard'].forEach(id=>$(id).style.display='none')}
 function showHome(){hideMain();$('home').style.display='block';$('footer').style.display='block';window.scrollTo({top:0,behavior:'smooth'})}
 function restartQuiz(){answers={};current=0;currentSaved=null;if(currentSurveyId) startSurvey(currentSurveyId); else showHome()}
 
@@ -433,6 +579,8 @@ function startSurvey(id){
   current=0;
   answers={};
   currentSaved=null;
+  pendingEntry=null;
+  setStatus('quizMsg');
   hideMain();
   const def=getSurveyDef(id);
   $('quiz').style.display='block';
@@ -453,6 +601,7 @@ function renderQuestion(){
   $('progressBar').style.width=`${progress}%`;
   $('backBtn').style.visibility=current===0?'hidden':'visible';
   $('nextBtn').textContent=current===def.questions.length-1?'Finalizar ✓':'Siguiente →';
+  if(!savingResponse&&!pendingEntry) setStatus('quizMsg');
   const area=$('answerArea'); area.innerHTML='';
 
   if(item.type==='single' || item.type==='scale' || item.type==='multi'){
@@ -480,36 +629,94 @@ function renderQuestion(){
       const note=document.createElement('div'); note.className='inline-help'; note.textContent='Puedes marcar una o varias opciones.'; area.appendChild(note);
     }
   }else if(item.type==='text'){
-    const input=document.createElement('input'); input.type='text'; input.placeholder=item.placeholder||''; input.value=answers[item.id]||''; input.oninput=e=>answers[item.id]=e.target.value; area.appendChild(input);
+    const input=document.createElement('input'); input.type='text'; input.maxLength=300; input.placeholder=item.placeholder||''; input.value=answers[item.id]||''; input.oninput=e=>answers[item.id]=e.target.value; area.appendChild(input);
   }else{
-    const ta=document.createElement('textarea'); ta.placeholder=item.placeholder||''; ta.value=answers[item.id]||''; ta.oninput=e=>answers[item.id]=e.target.value; area.appendChild(ta);
+    const ta=document.createElement('textarea'); ta.maxLength=2000; ta.placeholder=item.placeholder||''; ta.value=answers[item.id]||''; ta.oninput=e=>answers[item.id]=e.target.value; area.appendChild(ta);
   }
 }
 
-function validate(){
-  const def=getSurveyDef(currentSurveyId), item=def.questions[current], val=answers[item.id];
+// Devuelve un mensaje de error si la pregunta no es válida, o '' si está bien.
+function questionError(item,val){
   if(item.type==='single'||item.type==='scale'){
-    if(val===undefined){alert('Selecciona una respuesta para continuar.');return false}
+    if(!Number.isInteger(val)||val<0||val>=item.options.length) return 'Selecciona una respuesta para continuar.';
   }else if(item.type==='multi'){
-    if(!Array.isArray(val)||!val.length){alert('Selecciona al menos una opción para continuar.');return false}
+    if(!Array.isArray(val)||!val.length) return 'Selecciona al menos una opción para continuar.';
   }else if(!item.optional){
-    if(!String(val||'').trim()){alert('Por favor escribe tu respuesta para continuar.');return false}
+    if(!String(val||'').trim()) return 'Por favor escribe tu respuesta para continuar.';
   }
+  return '';
+}
+function validate(){
+  const def=getSurveyDef(currentSurveyId), item=def.questions[current];
+  const msg=questionError(item,answers[item.id]);
+  if(msg){setStatus('quizMsg','warn',escapeHTML(msg));return false}
   return true;
 }
-function nextQuestion(){if(!validate())return;const def=getSurveyDef(currentSurveyId);if(current<def.questions.length-1){current++;renderQuestion()}else finishQuiz()}
-function prevQuestion(){if(current>0){current--;renderQuestion()}}
+// Valida la encuesta completa antes de enviarla; devuelve el índice de la primera pregunta inválida o -1.
+function firstInvalidQuestion(def,ans){return def.questions.findIndex(q=>questionError(q,ans[q.id]))}
+// Solo guarda las claves de preguntas definidas (sin datos extra).
+function cleanAnswers(def,ans){
+  const out={};
+  def.questions.forEach(q=>{
+    const v=ans[q.id];
+    if(v===undefined||v===null) return;
+    if(q.type==='multi') out[q.id]=[...new Set(v)].filter(i=>Number.isInteger(i)&&i>=0&&i<q.options.length).sort((a,b)=>a-b);
+    else if(q.type==='single'||q.type==='scale') out[q.id]=v;
+    else {const t=String(v).trim(); if(t) out[q.id]=t;}
+  });
+  return out;
+}
+function nextQuestion(){if(savingResponse)return;if(!validate())return;const def=getSurveyDef(currentSurveyId);if(current<def.questions.length-1){current++;renderQuestion()}else finishQuiz()}
+function prevQuestion(){if(savingResponse)return;pendingEntry=null;if(current>0){current--;renderQuestion()}}
 
-function finishQuiz(){
+function setSavingUI(on){
+  savingResponse=on;
+  $('nextBtn').disabled=on; $('backBtn').disabled=on;
+  if(on){$('nextBtn').innerHTML='<span class="spinner"></span>Guardando…';setStatus('quizMsg','info','<span class="spinner"></span>Guardando tu respuesta de forma segura. No cierres esta página…')}
+  else $('nextBtn').textContent='Finalizar ✓';
+}
+
+async function finishQuiz(entryToRetry){
+  if(savingResponse) return;                     // evita doble envío
   const def=getSurveyDef(currentSurveyId);
-  const score=def.mode==='satisfaction'?responseScore(def,answers):100;
-  const entry={id:(crypto.randomUUID?crypto.randomUUID():'R-'+Date.now()+'-'+Math.random().toString(16).slice(2)),fecha:new Date().toISOString(),survey:def.id,surveyTitle:def.title,score,answers:JSON.parse(JSON.stringify(answers))};
-  const all=getResponses(); all.push(entry); setResponses(all); currentSaved=entry;
+  let entry=entryToRetry||pendingEntry;
+  if(!entry){
+    const bad=firstInvalidQuestion(def,answers);
+    if(bad>=0){current=bad;renderQuestion();validate();return}
+    const clean=cleanAnswers(def,answers);
+    entry={id:newClientId(),fecha:new Date().toISOString(),survey:def.id,surveyTitle:def.title,score:def.mode==='satisfaction'?responseScore(def,clean):null,answers:clean};
+  }
+  pendingEntry=entry;
+  setSavingUI(true);
+  try{
+    await insertResponse(entry,'web');
+    pendingEntry=null;
+    setSavingUI(false);
+    showFinish(def,entry,false);
+  }catch(err){
+    console.error('[Encuestas] Error al guardar',err);
+    setSavingUI(false);
+    setStatus('quizMsg','error',`<strong>Tu respuesta todavía NO se ha guardado.</strong> ${escapeHTML(friendlyError(err))}<div class="status-actions"><button class="btn btn-primary" type="button" onclick="finishQuiz()">Reintentar envío</button><button class="btn btn-secondary" type="button" onclick="saveForLater()">Guardar en este dispositivo y enviar después</button></div>`);
+  }
+}
+// La respuesta queda en la cola local y se reenvía automáticamente cuando haya conexión.
+function saveForLater(){
+  if(!pendingEntry)return;
+  const def=getSurveyDef(pendingEntry.survey);
+  queuePending(pendingEntry);
+  const entry=pendingEntry; pendingEntry=null;
+  showFinish(def,entry,true);
+}
+function showFinish(def,entry,queued){
+  currentSaved=entry;
+  const shown=def.mode==='satisfaction'?entry.score:100;
   hideMain(); $('finish').style.display='block';
-  $('scoreText').textContent=(def.mode==='satisfaction'?score:100)+'%';
-  $('scoreRing').style.background=`conic-gradient(var(--primary) ${(def.mode==='satisfaction'?score:100)*3.6}deg,#e8efe9 0deg)`;
+  $('scoreText').textContent=shown+'%';
+  $('scoreRing').style.background=`conic-gradient(var(--primary) ${shown*3.6}deg,#e8efe9 0deg)`;
   $('finishTitle').textContent=def.mode==='satisfaction'?'¡Gracias por ayudarnos a mejorar! 🌱':'¡Gracias por participar en la concertación! 🌱';
   $('finishLead').textContent=def.mode==='satisfaction'?'Tu percepción aporta información valiosa para ajustar el ciclo de menú y fortalecer la calidad del servicio de alimentación.':'Su opinión será tenida en cuenta como insumo para la planeación y ajuste del ciclo de menú, respetando criterios técnicos, nutricionales y operativos del servicio.';
+  if(queued) setStatus('finishMsg','warn','⏳ <strong>Respuesta pendiente de envío.</strong> Quedó guardada temporalmente en este dispositivo y se enviará automáticamente la próxima vez que abras esta página con conexión a internet.');
+  else setStatus('finishMsg','ok','✅ <strong>Respuesta guardada correctamente.</strong>');
   $('summaryBox').innerHTML=buildFinishSummary(def, entry);
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -527,7 +734,8 @@ function buildFinishSummary(def,entry){
   return `<h3>Resumen de participación</h3>${picks.map(r=>`<div class="summary-row"><span>${escapeHTML(r[0])}</span><strong style="text-align:right">${escapeHTML(r[1])}</strong></div>`).join('')}<p style="color:var(--muted);font-size:12px;margin:14px 0 0">La concertación permite identificar preferencias familiares. Las preparaciones solicitadas deben valorarse posteriormente según lineamientos nutricionales, edad de la población, gramajes, inocuidad y viabilidad operativa.</p>`;
 }
 
-function rowCSV(r){return r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')}
+function csvCell(v){let t=String(v??'');if(t.length>1&&/^[=+\-@\t\r]/.test(t))t="'"+t;return '"'+t.replace(/"/g,'""')+'"'}
+function rowCSV(r){return r.map(csvCell).join(',')}
 function downloadBlob(content,type,name){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),500)}
 function downloadCurrentCSV(){
   if(!currentSaved)return;
@@ -537,10 +745,150 @@ function downloadCurrentCSV(){
   downloadBlob('\ufeff'+rows.map(rowCSV).join('\n'),'text/csv;charset=utf-8;',`respuesta_${currentSaved.survey}.csv`)
 }
 
-function openAdminLogin(){$('adminPin').value='';$('adminModal').classList.add('open');setTimeout(()=>$('adminPin').focus(),80)}
-function closeAdminLogin(){$('adminModal').classList.remove('open')}
-function loginAdmin(){if($('adminPin').value!==ADMIN_PIN){alert('PIN incorrecto.');return}closeAdminLogin();showDashboard()}
-function showDashboard(){hideMain();$('dashboard').style.display='block';$('footer').style.display='none';renderDashboard();window.scrollTo({top:0,behavior:'smooth'})}
+/* ---------------- Autenticación (Supabase Auth) ---------------- */
+async function checkIsAdmin(user){
+  if(!sb||!user) return false;
+  const {data,error}=await withTimeout(sb.from('admin_users').select('user_id').eq('user_id',user.id).maybeSingle());
+  if(error) throw error;
+  return !!data;
+}
+function updateAdminButton(){$('adminBtn').textContent=adminUser?'📊 Panel nutricionista · sesión activa':'📊 Panel nutricionista'}
+
+async function openAdminLogin(){
+  if(!CONFIG_OK||!sb){showLoginModal();setStatus('loginMsg','error','La plataforma aún no está conectada a Supabase. Revisa la configuración (SUPABASE_URL y SUPABASE_ANON_KEY).');return}
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session){
+      if(adminUser&&adminUser.id===session.user.id){showDashboard();return}
+      if(await checkIsAdmin(session.user)){adminUser=session.user;updateAdminButton();showDashboard();return}
+    }
+  }catch(e){console.warn(e)}
+  showLoginModal();
+}
+function showLoginModal(){$('adminPassword').value='';$('adminModal').classList.add('open');setTimeout(()=>($('adminEmail').value?$('adminPassword'):$('adminEmail')).focus(),80)}
+function closeAdminLogin(){$('adminModal').classList.remove('open');setStatus('loginMsg')}
+async function loginAdmin(){
+  if(!CONFIG_OK||!sb){setStatus('loginMsg','error','La plataforma aún no está conectada a Supabase.');return}
+  const email=$('adminEmail').value.trim(), password=$('adminPassword').value;
+  if(!email||!password){setStatus('loginMsg','warn','Escribe tu correo y tu contraseña.');return}
+  const btn=$('loginBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Verificando…'; setStatus('loginMsg');
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email,password});
+    if(error){
+      const m=error.message||'';
+      if(/invalid login credentials/i.test(m)) setStatus('loginMsg','error','Correo o contraseña incorrectos.');
+      else if(/email not confirmed/i.test(m)) setStatus('loginMsg','error','El correo de esta cuenta aún no ha sido confirmado.');
+      else if(error.status===429) setStatus('loginMsg','error','Demasiados intentos. Espera unos minutos e inténtalo de nuevo.');
+      else setStatus('loginMsg','error',escapeHTML(friendlyError(error)));
+      return;
+    }
+    if(!(await checkIsAdmin(data.user))){
+      manualLogout=true; await sb.auth.signOut(); manualLogout=false;
+      setStatus('loginMsg','error','Esta cuenta no está autorizada para ver el panel de nutrición.');
+      return;
+    }
+    adminUser=data.user; updateAdminButton();
+    $('adminPassword').value='';
+    closeAdminLogin(); showDashboard();
+  }catch(e){
+    console.error(e); setStatus('loginMsg','error',escapeHTML(friendlyError(e)));
+  }finally{btn.disabled=false;btn.textContent='Ingresar'}
+}
+function clearDashboardData(){
+  responsesCache=[];
+  ['metrics','panel1Content','panel2Content','panel3Content','insights','comments','autoReport','responsesTable'].forEach(id=>$(id).innerHTML='');
+  $('sessionInfo').textContent='';
+}
+async function logoutAdmin(){
+  unsubscribeRealtime();
+  manualLogout=true;
+  try{if(sb) await sb.auth.signOut()}catch(e){console.warn(e)}
+  manualLogout=false;
+  adminUser=null; updateAdminButton(); clearDashboardData(); showHome();
+  showToast('Sesión cerrada correctamente.');
+}
+function handleSessionExpired(){
+  unsubscribeRealtime();
+  const wasOpen=$('dashboard').style.display==='block';
+  adminUser=null; updateAdminButton(); clearDashboardData();
+  if(wasOpen){showHome();showLoginModal();setStatus('loginMsg','warn','Tu sesión expiró. Inicia sesión nuevamente para continuar.')}
+}
+
+/* ---------------- Panel: carga desde Supabase ---------------- */
+function showDashboard(){
+  if(!adminUser){openAdminLogin();return}
+  hideMain();$('dashboard').style.display='block';$('footer').style.display='none';
+  $('sessionInfo').textContent='Sesión: '+(adminUser.email||'');
+  renderMigrationPanel();
+  subscribeRealtime();
+  loadDashboardData();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+async function fetchAllResponses(){
+  const page=1000; let from=0; const all=[];
+  while(true){
+    const {data,error}=await withTimeout(sb.from(TABLE).select('id,created_at,survey_type,survey_title,score,answers,source').order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,from+page-1));
+    if(error) throw error;
+    all.push(...data);
+    if(data.length<page) break;
+    from+=page;
+  }
+  return all;
+}
+let loadingDashboard=false;
+async function loadDashboardData(){
+  if(!adminUser||loadingDashboard) return;
+  loadingDashboard=true;
+  $('reloadBtn').disabled=true;
+  $('dashBody').style.opacity='.45';
+  setStatus('dashStatus','info','<span class="spinner"></span>Cargando respuestas desde la base de datos…');
+  try{
+    const rows=await fetchAllResponses();
+    responsesCache=rows.map(normalizeRow);
+    if(!responsesCache.length) setStatus('dashStatus','info','📭 Todavía no hay respuestas guardadas. Los indicadores aparecerán cuando alguien complete una encuesta.');
+    else setStatus('dashStatus');
+    renderDashboard();
+  }catch(e){
+    console.error('[Panel] Error al cargar',e);
+    if(isAuthError(e)){handleSessionExpired();return}
+    setStatus('dashStatus','error',`<strong>No fue posible cargar las respuestas.</strong> ${escapeHTML(friendlyError(e))}<div class="status-actions"><button class="btn btn-primary" type="button" onclick="loadDashboardData()">Reintentar</button></div>`);
+  }finally{
+    loadingDashboard=false; $('reloadBtn').disabled=false; $('dashBody').style.opacity='';
+  }
+}
+
+/* ---------------- Realtime ---------------- */
+function setLive(on,text){const p=$('livePill');p.classList.toggle('on',on);p.textContent=text}
+function subscribeRealtime(){
+  if(!sb||realtimeChannel) return;
+  setLive(false,'Conectando actualización en vivo…');
+  realtimeChannel=sb.channel('panel-survey-responses')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:TABLE},payload=>{
+      const r=normalizeRow(payload.new);
+      if(responsesCache.some(x=>x.id===r.id)) return;
+      responsesCache.push(r);
+      responsesCache.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+      setStatus('dashStatus');
+      renderDashboard();
+      showToast(`Nueva respuesta recibida: ${(surveys[r.survey]||{}).shortTitle||r.survey}`);
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:TABLE},payload=>{
+      const id=payload.old&&payload.old.id; if(!id) return;
+      const before=responsesCache.length;
+      responsesCache=responsesCache.filter(x=>x.id!==id);
+      if(responsesCache.length!==before) renderDashboard();
+    })
+    .subscribe(status=>{
+      if(status==='SUBSCRIBED') setLive(true,'En vivo · se actualiza automáticamente');
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT') setLive(false,'Sin actualización en vivo · usa ↻ Actualizar');
+      else if(status==='CLOSED') setLive(false,'Actualización en vivo detenida');
+    });
+}
+function unsubscribeRealtime(){
+  if(realtimeChannel&&sb){sb.removeChannel(realtimeChannel)}
+  realtimeChannel=null;
+}
+
 function clearFilters(){$('filterFreq').value='all';$('filterFrom').value='';$('filterTo').value='';renderDashboard()}
 
 function filteredResponses(){
@@ -550,7 +898,7 @@ function filteredResponses(){
   const freq=$('filterFreq').value;
   return getResponses().filter(r=>{
     if(r.survey!==surveyId) return false;
-    const d=(r.fecha||'').slice(0,10);
+    const d=localDateKey(r.fecha);
     if(from&&d<from) return false;
     if(to&&d>to) return false;
     if(surveyId==='satisfaccion' && freq!=='all' && String(r.answers.frecuencia)!==freq) return false;
@@ -623,7 +971,7 @@ function renderDashboardSatisfaction(def,rs){
   $('panel3Sub').textContent='Lectura rápida de porciones, repetición del menú y desperdicio.';
   $('panel3Content').innerHTML=total?`<div style="display:grid;gap:18px"><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Percepción del tamaño de las porciones</div>${renderDistributionRows(porcionQ.options,countSingle(rs,porcionQ))}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Repetición del menú</div>${renderDistributionRows(repQ.options,countSingle(rs,repQ))}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Desperdicio / alimentos no consumidos</div>${renderDistributionRows(despQ.options,countSingle(rs,despQ))}</div></div>`:'<div class="empty">Sin datos para distribución.</div>';
 
-  const comments=[]; rs.slice().reverse().forEach(r=>{if((r.answers.mejor||'').trim())comments.push({type:'Preferencia',text:r.answers.mejor,date:r.fecha}); if((r.answers.mejora||'').trim())comments.push({type:'Sugerencia',text:r.answers.mejora,date:r.fecha})});
+  const comments=[]; rs.forEach(r=>{if((r.answers.mejor||'').trim())comments.push({type:'Preferencia',text:r.answers.mejor,date:r.fecha}); if((r.answers.mejora||'').trim())comments.push({type:'Sugerencia',text:r.answers.mejora,date:r.fecha})});
   $('commentsTitle').textContent='Comentarios y preferencias';
   $('commentsSub').textContent='Respuestas abiertas para lectura cualitativa.';
   renderComments(comments);
@@ -653,7 +1001,7 @@ function buildSatisfactionReport(def,rs){
 }
 function renderSatisfactionTable(def,rs){
   if(!rs.length){$('responsesTable').innerHTML='<div class="empty">No hay respuestas registradas.</div>';return}
-  const rows=rs.slice().reverse().map((r,i)=>`<tr><td><strong>${rs.length-i}</strong></td><td>${new Date(r.fecha).toLocaleString('es-CO')}</td><td>${r.score??responseScore(def,r.answers)}%</td><td>${escapeHTML(selectedLabels(def,r.answers,'satisfaccion'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'porcion'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'repeticion'))}</td><td>${escapeHTML(r.answers.mejora||'-')}</td></tr>`).join('');
+  const rows=rs.map((r,i)=>`<tr><td><strong>${rs.length-i}</strong></td><td>${new Date(r.fecha).toLocaleString('es-CO')}</td><td>${Number(r.score??responseScore(def,r.answers))}%</td><td>${escapeHTML(selectedLabels(def,r.answers,'satisfaccion'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'porcion'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'repeticion'))}</td><td>${escapeHTML(r.answers.mejora||'-')}</td></tr>`).join('');
   $('responsesTable').innerHTML=`<table class="data-table"><thead><tr><th>#</th><th>Fecha</th><th>Índice</th><th>Satisfacción</th><th>Porción</th><th>Repetición</th><th>Sugerencia</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
@@ -707,7 +1055,7 @@ function renderDashboardConcertation(def,rs){
   $('panel3Content').innerHTML=total?`<div style="display:grid;gap:18px"><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Proteínas de mayor agrado</div>${renderBarRows(protQ.options,protCounts,total,true)}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Frutas sugeridas con mayor frecuencia</div>${renderBarRows(frutasQ.options,frutaCounts,total,true)}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Aspecto más importante al construir el menú</div>${renderDistributionRows(aspectoQ.options,aspectoCounts)}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Condiciones alimentarias informadas</div>${renderDistributionRows(condQ.options,condCounts)}</div><div><div style="font-size:13px;font-weight:800;margin-bottom:10px">Preparaciones regionales solicitadas</div>${renderBarRows(regQ.options,regCounts,total,true)}</div></div>`:'<div class="empty">Sin datos para distribución.</div>';
 
   const comments=[];
-  rs.slice().reverse().forEach(r=>{
+  rs.forEach(r=>{
     [['Preparaciones sugeridas',r.answers.prepPrincipales],['Tradición familiar/regional',r.answers.regionalAbierta],['Menor aceptación',r.answers.menosAceptacion],['Propuesta principal',r.answers.especial],['Sugerencia adicional',r.answers.sugerencias]].forEach(x=>{if(String(x[1]||'').trim())comments.push({type:x[0],text:x[1],date:r.fecha})});
   });
   $('commentsTitle').textContent='Aportes cualitativos de las familias';
@@ -744,7 +1092,7 @@ function buildConcertationReport(def,rs,data){
 }
 function renderConcertationTable(def,rs){
   if(!rs.length){$('responsesTable').innerHTML='<div class="empty">No hay respuestas registradas.</div>';return}
-  const rows=rs.slice().reverse().map((r,i)=>`<tr><td><strong>${rs.length-i}</strong></td><td>${new Date(r.fecha).toLocaleString('es-CO')}</td><td>${escapeHTML(selectedLabels(def,r.answers,'grupos'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'proteinasFav'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'regionales'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'aspecto'))}</td><td>${escapeHTML((r.answers.especial||r.answers.sugerencias||'-'))}</td></tr>`).join('');
+  const rows=rs.map((r,i)=>`<tr><td><strong>${rs.length-i}</strong></td><td>${new Date(r.fecha).toLocaleString('es-CO')}</td><td>${escapeHTML(selectedLabels(def,r.answers,'grupos'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'proteinasFav'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'regionales'))}</td><td>${escapeHTML(selectedLabels(def,r.answers,'aspecto'))}</td><td>${escapeHTML((r.answers.especial||r.answers.sugerencias||'-'))}</td></tr>`).join('');
   $('responsesTable').innerHTML=`<table class="data-table"><thead><tr><th>#</th><th>Fecha</th><th>Grupos solicitados</th><th>Proteínas preferidas</th><th>Regionales sugeridas</th><th>Prioridad principal</th><th>Aporte / sugerencia</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
@@ -752,60 +1100,138 @@ function exportAllCSV(){
   const surveyId=$('filterSurvey').value;
   const def=getSurveyDef(surveyId);
   const rs=filteredResponses();
-  if(!rs.length){alert('No hay datos para exportar.');return}
+  if(!rs.length){showToast('No hay datos para exportar con los filtros actuales.','warn');return}
   const headers=['ID','Encuesta','Fecha',...(def.mode==='satisfaction'?['Índice %']:[]),...def.questions.map(q=>q.q)];
   const rows=[headers];
-  rs.forEach(r=>rows.push([r.id,def.title,r.fecha,...(def.mode==='satisfaction'?[r.score??responseScore(def,r.answers)]:[]),...def.questions.map(q=>selectedLabels(def,r.answers,q.id))]));
-  downloadBlob('\ufeff'+rows.map(rowCSV).join('\n'),'text/csv;charset=utf-8;',`base_${surveyId}.csv`)
+  rs.forEach(r=>rows.push([r.id,def.title,new Date(r.fecha).toLocaleString('es-CO'),...(def.mode==='satisfaction'?[r.score??responseScore(def,r.answers)]:[]),...def.questions.map(q=>selectedLabels(def,r.answers,q.id))]));
+  downloadBlob('\ufeff'+rows.map(rowCSV).join('\n'),'text/csv;charset=utf-8;',`base_${surveyId}_${localDateKey(new Date())}.csv`);
+  showToast(`CSV exportado: ${rs.length} respuesta${rs.length===1?'':'s'} de la encuesta y filtros seleccionados.`)
 }
-function exportJSON(){const data=getResponses();downloadBlob(JSON.stringify({exportado:new Date().toISOString(),version:3,respuestas:data},null,2),'application/json','backup_encuestas_nutricion.json')}
-function copyReport(){const txt=$('autoReport').innerText;navigator.clipboard?.writeText(txt).then(()=>alert('Informe copiado al portapapeles.')).catch(()=>alert('No fue posible copiar automáticamente.'))}
-function clearAllData(){if(!confirm('¿Seguro que deseas borrar TODAS las respuestas guardadas en este navegador? Esta acción no se puede deshacer.'))return;if(!confirm('Última confirmación: se eliminará la base completa.'))return;localStorage.removeItem(STORAGE_KEY);renderDashboard()}
+function exportJSON(){
+  const data=getResponses();
+  if(!data.length){showToast('No hay respuestas para respaldar.','warn');return}
+  downloadBlob(JSON.stringify({exportado:new Date().toISOString(),version:4,origen:'supabase',respuestas:data},null,2),'application/json',`backup_encuestas_nutricion_${localDateKey(new Date())}.json`);
+  showToast(`Backup descargado con ${data.length} respuestas (ambas encuestas).`);
+}
+function copyReport(){const txt=$('autoReport').innerText;if(!navigator.clipboard){showToast('No fue posible copiar automáticamente.','error');return}navigator.clipboard.writeText(txt).then(()=>showToast('Informe copiado al portapapeles.')).catch(()=>showToast('No fue posible copiar automáticamente.','error'))}
 
-function loadDemoData(){
-  if(!confirm('Esto agregará respuestas DEMO para visualizar el panel. Podrás borrarlas después. ¿Continuar?'))return;
-  const arr=getResponses();
-  const satTexts=['Más variedad de ensaladas','Evitar repetir pollo varias veces','Mejorar la temperatura de la sopa','Las porciones están bien','Más fruta fresca','Variar los acompañamientos','Todo bien','Mejorar la presentación'];
-  const favs=['Pollo al horno','Fruta','Arroz con verduras','Sopa','Ensaladas','Carne guisada'];
-  for(let i=0;i<24;i++){
-    const a={frecuencia:i%4,satisfaccion:[3,4,3,2,4,3,1,4][i%8],sabor:[3,4,3,3,4,2,2,4][i%8],temperatura:[3,3,2,3,4,2,3,4][i%8],presentacion:[3,4,3,2,4,3,3,4][i%8],porcion:[2,2,1,2,2,3,2,2][i%8],variedad:[2,3,3,2,4,2,1,3][i%8],repeticion:[1,2,1,2,3,1,0,2][i%8],verduras:[2,3,2,3,4,2,1,3][i%8],proteinas:[3,4,3,2,4,3,2,4][i%8],horario:[4,4,3,4,4,3,2,4][i%8],desperdicio:[3,4,2,3,4,2,1,4][i%8],mejor:favs[i%favs.length],mejora:satTexts[i%satTexts.length]};
-    arr.push({id:'DEMO-SAT-'+Date.now()+'-'+i,fecha:new Date(Date.now()-i*86400000).toISOString(),survey:'satisfaccion',surveyTitle:surveys.satisfaccion.title,score:responseScore(surveys.satisfaccion,a),answers:a});
+// Borra en Supabase todas las respuestas de la encuesta seleccionada (solo administradores; RLS lo verifica).
+async function clearAllData(){
+  if(!adminUser||!sb) return;
+  const surveyId=$('filterSurvey').value, def=getSurveyDef(surveyId);
+  const n=getResponses().filter(r=>r.survey===surveyId).length;
+  if(!n){showToast('No hay respuestas de esta encuesta para borrar.','warn');return}
+  const ok=await confirmDialog({title:'Borrar respuestas',text:`Se eliminarán definitivamente las ${n} respuestas de «${def.title}» de la base de datos. Te recomendamos descargar antes el Backup. Para confirmar escribe BORRAR.`,confirmLabel:'Borrar definitivamente',requireText:'BORRAR'});
+  if(!ok) return;
+  try{
+    const {error}=await withTimeout(sb.from(TABLE).delete().eq('survey_type',surveyId));
+    if(error) throw error;
+    showToast('Respuestas eliminadas.');
+    await loadDashboardData();
+  }catch(e){
+    if(isAuthError(e)){handleSessionExpired();return}
+    showToast('No fue posible borrar: '+friendlyError(e),'error');
   }
-  const preps=['Arroz con pollo y ensalada','Pasta con carne desmechada','Lentejas con arroz y tajadas','Pescado al horno con puré'];
-  const regionals=['Tamal huilense','Asado huilense','Arepas tradicionales','Preparaciones con plátano'];
-  const lowAcc=['Sopas muy cargadas','Verduras enteras','Alimentos muy condimentados','Hígado'];
-  const especiales=['Más mango y sandía','Incluir envueltos de maíz','Más pollo al horno','Fruta fresca como postre'];
-  for(let i=0;i<18;i++){
-    const a={
-      grupos:[0,2,4].filter((_,idx)=>((i+idx)%2===0)).concat(i%3===0?[1]:[]),
-      proteinasFav:[0,3,4,5].filter((_,idx)=>((i+idx)%3!==1)),
-      prepPrincipales:preps[i%preps.length],
-      verdurasFormas:[0,3,5].filter((_,idx)=>((i+idx)%2===0)),
-      frutas:[0,2,4,5,7].filter((_,idx)=>((i+idx)%2===0)),
-      acompanamientos:[0,1,3,4].filter((_,idx)=>((i+idx)%2===0)),
-      regionales:[i%6, (i+2)%6].filter((v,idx,arr)=>arr.indexOf(v)===idx),
-      regionalAbierta:regionals[i%regionals.length],
-      menosAceptacion:lowAcc[i%lowAcc.length],
-      formaProteina:[0,1,2,5].filter((_,idx)=>((i+idx)%2===0)),
-      bebidas:[0,1,3].filter((_,idx)=>((i+idx)%2===0)),
-      aspecto:[6,0,2,4][i%4],
-      importanciaRegional:[4,3,4,2,4][i%5],
-      especial:especiales[i%especiales.length],
-      condicion:[3,3,4,1,3,2][i%6],
-      sugerencias:['Más variedad de fruta','Adaptar platos típicos a los niños','No repetir tanto la pasta','Agregar más verduras suaves'][i%4]
-    };
-    arr.push({id:'DEMO-CON-'+Date.now()+'-'+i,fecha:new Date(Date.now()-i*43200000).toISOString(),survey:'concertacion',surveyTitle:surveys.concertacion.title,score:100,answers:a});
-  }
-  setResponses(arr); renderDashboard();
 }
 
-window.addEventListener('click',e=>{if(e.target===$('adminModal'))closeAdminLogin()});
-window.addEventListener('DOMContentLoaded',()=>{
-  migrateLegacyData();
+/* ---------------- Migración desde localStorage (versión anterior) ---------------- */
+function readLocalLegacy(){
+  const out=new Map(); let demos=0, invalid=0;
+  [STORAGE_KEY,LEGACY_STORAGE_KEY].forEach(key=>{
+    let arr=[];
+    try{arr=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){arr=[]}
+    if(!Array.isArray(arr)) return;
+    arr.forEach(r=>{
+      if(!r||typeof r!=='object'){invalid++;return}
+      const id=String(r.id||('LEGACY-'+(r.fecha||'')+'-'+JSON.stringify(r.answers||{}).length));
+      if(/^DEMO-/.test(id)){demos++;return}
+      const survey=r.survey||'satisfaccion';
+      if(!surveys[survey]||!r.answers||typeof r.answers!=='object'||Array.isArray(r.answers)){invalid++;return}
+      if(!out.has(id)) out.set(id,{...r,id,survey});
+    });
+  });
+  return {records:[...out.values()],demos,invalid};
+}
+function renderMigrationPanel(){
+  const {records,demos}=readLocalLegacy();
+  const panel=$('migrationPanel');
+  if(!records.length&&!demos){panel.style.display='none';return}
+  panel.style.display='block';
+  const sat=records.filter(r=>r.survey==='satisfaccion').length, con=records.length-sat;
+  $('migrationText').innerHTML=records.length
+    ?`Este navegador tiene <strong>${records.length}</strong> respuesta${records.length===1?'':'s'} guardada${records.length===1?'':'s'} con la versión anterior (satisfacción: ${sat}, concertación: ${con})${demos?` y ${demos} registros de demostración que no se migrarán`:''}. Al migrarlas se suben a Supabase conservando su fecha original y sin duplicarse.`
+    :`Solo hay ${demos} registros de demostración de la versión anterior. No se migrarán a la base de datos.`;
+  $('migrateBtn').textContent=records.length?'Migrar respuestas locales a Supabase':'Eliminar datos demo locales';
+}
+async function migrateLocalResponses(){
+  if(!adminUser||!sb) return;
+  const {records,demos,invalid}=readLocalLegacy();
+  if(!records.length){
+    if(demos&&await confirmDialog({title:'Datos demo',text:'Se eliminarán de este navegador los registros de demostración de la versión anterior.',confirmLabel:'Eliminar'})){
+      localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_STORAGE_KEY);renderMigrationPanel();showToast('Datos demo eliminados de este navegador.');
+    }
+    return;
+  }
+  const ok=await confirmDialog({title:'Migrar respuestas locales',text:`Se subirán ${records.length} respuestas de este navegador a Supabase. Las que ya se hubieran migrado antes se omiten automáticamente. Cuando la migración se verifique, se eliminarán de este navegador.`,confirmLabel:'Migrar ahora'});
+  if(!ok) return;
+  const btn=$('migrateBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Migrando…';
+  try{
+    const rows=records.map(r=>{
+      const def=surveys[r.survey];
+      const d=new Date(r.fecha);
+      return {
+        survey_type:r.survey,
+        survey_title:String(r.surveyTitle||def.title).slice(0,200),
+        score:r.survey==='satisfaccion'?Math.max(0,Math.min(100,Math.round(Number(r.score??responseScore(def,r.answers))||0))):null,
+        answers:r.answers,
+        source:'migracion_local',
+        legacy_id:String(r.id).slice(0,120),
+        created_at:isNaN(d)?new Date().toISOString():d.toISOString()
+      };
+    });
+    for(let i=0;i<rows.length;i+=200){
+      const {error}=await withTimeout(sb.from(TABLE).upsert(rows.slice(i,i+200),{onConflict:'legacy_id',ignoreDuplicates:true}));
+      if(error) throw error;
+    }
+    // Verificación: todas las legacy_id deben existir en la base antes de borrar lo local.
+    const ids=rows.map(r=>r.legacy_id); let found=0;
+    for(let i=0;i<ids.length;i+=100){
+      const {data,error}=await withTimeout(sb.from(TABLE).select('legacy_id').in('legacy_id',ids.slice(i,i+100)));
+      if(error) throw error;
+      found+=data.length;
+    }
+    if(found<ids.length) throw new Error(`Verificación incompleta (${found}/${ids.length})`);
+    localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(LEGACY_STORAGE_KEY);
+    localStorage.setItem('encuestaMenuMigradoSupabase',new Date().toISOString());
+    showToast(`Migración completada: ${ids.length} respuestas verificadas en Supabase${invalid?` (${invalid} registros dañados omitidos)`:''}.`);
+    await loadDashboardData();
+  }catch(e){
+    console.error('[Migración]',e);
+    if(isAuthError(e)){handleSessionExpired();return}
+    showToast('La migración no se completó. Las respuestas locales NO se borraron. '+friendlyError(e),'error');
+  }finally{btn.disabled=false;renderMigrationPanel()}
+}
+
+window.addEventListener('click',e=>{if(e.target===$('adminModal'))closeAdminLogin();if(e.target===$('confirmModal'))$('confirmCancel').click()});
+window.addEventListener('online',flushPending);
+window.addEventListener('DOMContentLoaded',async()=>{
   renderSurveyCards();
   populateSurveyFilter();
   $('filterSurvey').value='satisfaccion';
   showHome();
+  if(!CONFIG_OK||!sb){
+    setStatus('homeMsg','warn',CONFIG_OK?'⚠️ No se pudo cargar la librería de conexión. Revisa tu conexión a internet y recarga la página.':'⚠️ La plataforma aún no está conectada a la base de datos. Las respuestas no se podrán enviar hasta completar la configuración.');
+    return;
+  }
+  sb.auth.onAuthStateChange((event,session)=>{
+    if(event==='SIGNED_OUT'&&!manualLogout&&adminUser) setTimeout(handleSessionExpired,0);
+    if(session&&adminUser&&session.user.id===adminUser.id) adminUser=session.user;
+  });
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session&&await checkIsAdmin(session.user)){adminUser=session.user;updateAdminButton()}
+  }catch(e){console.warn(e)}
+  flushPending();
 });
 </script>
 </body>
